@@ -1,0 +1,110 @@
+---
+title: 'Installation'
+description: 'How to install and set up the Ollama SDK in your project'
+---
+
+# Installation
+
+This guide will walk you through the process of installing and setting up the Ollama SDK in your JavaScript or TypeScript project.
+
+## Prerequisites
+
+Before installing the SDK, make sure you have:
+
+1. **Node.js** (v16.0.0 or later) installed
+2. **Ollama** installed and running on your machine or a remote server
+   - [Download Ollama](https://ollama.ai/download) if you haven't already
+
+## Installing the SDK
+
+You can install the Ollama SDK using your preferred package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install @tekimax/ollama-sdk
+```
+
+```bash yarn
+yarn add @tekimax/ollama-sdk
+```
+
+```bash pnpm
+pnpm add @tekimax/ollama-sdk
+```
+
+</CodeGroup>
+
+## Verify Installation
+
+To verify that the SDK has been installed correctly, you can create a simple test script:
+
+```javascript
+// test-ollama.js
+const { OllamaKit } = require('@tekimax/ollama-sdk');
+
+async function testConnection() {
+  const ollama = new OllamaKit();
+  
+  try {
+    const models = await ollama.listModels();
+    console.log('Available models:', models.models.map(m => m.name));
+    console.log('Ollama SDK is connected successfully!');
+  } catch (error) {
+    console.error('Failed to connect to Ollama:', error.message);
+    console.log('Make sure Ollama is running on your machine');
+  }
+}
+
+testConnection();
+```
+
+Run the script using Node.js:
+
+```bash
+node test-ollama.js
+```
+
+If Ollama is running and the SDK is installed correctly, you should see a list of available models.
+
+## Installing the CLI (Optional)
+
+The SDK also comes with a command-line interface (CLI) that you can install globally:
+
+```bash
+npm install -g @tekimax/ollama-sdk
+```
+
+Once installed, you can use the CLI to interact with Ollama directly from your terminal:
+
+```bash
+ollama-sdk list
+```
+
+This command lists all available models in your Ollama installation.
+
+## Configuration
+
+By default, the SDK connects to Ollama at `http://localhost:11434`. If you're running Ollama on a different host or port, you can configure the SDK:
+
+```javascript
+const { OllamaKit } = require('@tekimax/ollama-sdk');
+
+const ollama = new OllamaKit({
+  baseUrl: 'http://your-ollama-host:11434' // Replace with your Ollama host
+});
+```
+
+## Troubleshooting
+
+If you encounter issues during installation or connection:
+
+1. **Ollama not running**: Ensure Ollama is installed and running properly
+2. **Connection refused**: Check if the Ollama server is accessible at the specified URL
+3. **Version compatibility**: Make sure you're using a compatible version of Ollama with this SDK
+
+For more details, see the [Troubleshooting Guide](/docs/guides/troubleshooting) or open an issue on our [GitHub repository](https://github.com/TEKIMAX/ollama-js-sdk).
+
+## Next Steps
+
+Now that you've installed the Ollama SDK, check out the [Quick Start](/docs/quickstart) guide to learn how to use it in your applications. 

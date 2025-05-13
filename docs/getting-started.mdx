@@ -1,0 +1,76 @@
+---
+title: 'Getting Started with Ollama SDK'
+description: 'Learn how to use the TypeScript/JavaScript SDK for Ollama'
+---
+
+# Getting Started with Ollama SDK
+
+The `@tekimax/ollama-sdk` is a comprehensive TypeScript/JavaScript SDK for interacting with Ollama, an API for running large language models locally. This SDK allows you to easily integrate Ollama's capabilities into your JavaScript and TypeScript applications.
+
+## What is Ollama?
+
+[Ollama](https://ollama.ai) lets you run open-source large language models, such as Llama 2, locally on your machine. This gives you the power of AI models without sending your data to external APIs.
+
+## What can you do with this SDK?
+
+With the Ollama SDK, you can:
+
+- Generate text responses from prompts
+- Stream responses in real-time
+- Create embeddings for semantic search
+- Manage and interact with different models
+- Use OpenAI-compatible interfaces with local models
+- Leverage tool-calling capabilities (function calling)
+
+## Requirements
+
+- **Node.js**: v16.0.0 or higher
+- **Ollama**: Running locally or on a remote server
+- **TypeScript** (optional): For type safety
+
+## Installation
+
+You can install the SDK using npm, yarn, or pnpm:
+
+```bash
+# Using npm
+npm install @tekimax/ollama-sdk
+
+# Using yarn
+yarn add @tekimax/ollama-sdk
+
+# Using pnpm
+pnpm add @tekimax/ollama-sdk
+```
+
+## Quick Example
+
+Here's a simple example to get you started:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+async function main() {
+  // Initialize the client (default: http://localhost:11434)
+  const ollama = new OllamaKit();
+  
+  // Generate text with a model
+  const response = await ollama.generate({
+    model: 'llama2',
+    prompt: 'Explain quantum computing in simple terms',
+    temperature: 0.7
+  });
+  
+  console.log('Generated response:');
+  console.log(response.response);
+}
+
+main().catch(console.error);
+```
+
+## Next Steps
+
+- [Installation](/docs/installation) - Detailed installation instructions
+- [Quick Start](/docs/quickstart) - More examples to get you started quickly
+- [API Reference](/docs/api/overview) - Complete API documentation
+- [Guides](/docs/guides/basic-usage) - In-depth guides for specific use cases 

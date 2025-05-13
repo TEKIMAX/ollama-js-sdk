@@ -1,0 +1,410 @@
+---
+title: 'Tool Calling with Ollama SDK'
+description: 'Learn how to use function calling capabilities with Ollama'
+---
+
+# Tool Calling with Ollama SDK
+
+Tool calling (or function calling) allows your LLM to interact with external tools and APIs. This enables the model to request specific information or perform actions that are outside its training data or capabilities.
+
+## Prerequisites
+
+- Ollama SDK installed
+- A model that supports tool calling (like Llama 3, Claude 3, or others)
+
+## Understanding Tool Calling
+
+Tool calling works in a conversational loop:
+
+1. Your application sends a prompt and tool definitions to the model
+2. The model generates a response and may request tool execution
+3. Your application executes the requested tool
+4. Your application sends the tool execution results back to the model
+5. The model incorporates this information in its final response
+
+## Basic Tool Calling
+
+Let's start with a simple example:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function basicToolCalling() {
+  // Define a simple calculator tool
+  const calculatorTool = {
+    type: "function",
+    name: "calculate",
+    description: "Perform a mathematical calculation",
+    parameters: {
+      type: "object",
+      required: ["expression"],
+      properties: {
+        expression: {
+          type: "string",
+          description: "The mathematical expression to evaluate, e.g. '2 + 2'"
+        }
+      }
+    }
+  };
+  
+  // Call the model with the calculator tool
+  const response = await ollama.tools.callWithTools({
+    model: 'llama3', // Make sure your model supports function calling
+    prompt: 'What is the square root of 144 plus 16?',
+    tools: [calculatorTool]
+  });
+  
+  console.log('Initial response:', response.message.content);
+  
+  // Check if the model wants to use the calculator
+  if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+    const toolCall = response.message.tool_calls[0];
+    console.log(`Model wants to call: ${toolCall.name}`);
+    console.log('With input:', toolCall.input);
+    
+    // Execute the calculator tool
+    let result;
+    if (toolCall.name === 'calculate') {
+      try {
+        // SECURITY WARNING: In a real app, use a safer evaluation method!
+        // This is just for demonstration purposes.
+        const expression = toolCall.input.expression;
+        result = eval(expression); // DO NOT use eval() in production!
+      } catch (error) {
+        result = `Error: ${error.message}`;
+      }
+    }
+    
+    // Return the result to the model
+    const finalResponse = await ollama.tools.executeToolCalls(
+      {
+        model: 'llama3',
+        prompt: 'What is the square root of 144 plus 16?',
+        tools: [calculatorTool]
+      },
+      [toolCall], // The original tool calls
+      [{
+        tool_call_id: toolCall.id,
+        role: "tool",
+        name: toolCall.name,
+        content: JSON.stringify(result)
+      }]
+    );
+    
+    console.log('Final response:', finalResponse.message.content);
+  }
+}
+
+basicToolCalling().catch(console.error);
+```
+
+## Tools with Multiple Parameters
+
+Here's an example with tools that have multiple parameters:
+
+```javascript
+const weatherTool = {
+  type: "function",
+  name: "get_weather",
+  description: "Get the current weather for a location",
+  parameters: {
+    type: "object",
+    required: ["location"],
+    properties: {
+      location: {
+        type: "string",
+        description: "City name, e.g., 'New York, NY'"
+      },
+      unit: {
+        type: "string",
+        enum: ["celsius", "fahrenheit"],
+        description: "Temperature unit"
+      }
+    }
+  }
+};
+```
+
+## Multiple Tools
+
+You can provide multiple tools at once, letting the model choose:
+
+```javascript
+const tools = [
+  {
+    type: "function",
+    name: "get_weather",
+    description: "Get the current weather for a location",
+    parameters: {
+      type: "object",
+      required: ["location"],
+      properties: {
+        location: {
+          type: "string",
+          description: "City name, e.g., 'New York, NY'"
+        }
+      }
+    }
+  },
+  {
+    type: "function",
+    name: "search_web",
+    description: "Search the web for information",
+    parameters: {
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: {
+          type: "string",
+          description: "The search query"
+        }
+      }
+    }
+  }
+];
+
+const response = await ollama.tools.callWithTools({
+  model: 'llama3',
+  prompt: 'Is it going to rain in Seattle tomorrow?',
+  tools
+});
+```
+
+## Conversation Memory with Tools
+
+For multi-turn conversations with tool usage, you'll need to keep track of the conversation history:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function conversationWithTools() {
+  const tools = [/* your tool definitions */];
+  
+  // Start conversation history
+  const history = [
+    { role: 'system', content: 'You are a helpful assistant that can use tools.' }
+  ];
+  
+  // User's first question
+  history.push({ role: 'user', content: 'What's the weather in Tokyo today?' });
+  
+  // First model response
+  const response1 = await ollama.tools.callWithTools({
+    model: 'llama3',
+    messages: history,
+    tools
+  });
+  
+  history.push({ role: 'assistant', content: response1.message.content });
+  
+  // Handle tool calls if any
+  if (response1.message.tool_calls && response1.message.tool_calls.length > 0) {
+    const toolCall = response1.message.tool_calls[0];
+    history.push({
+      role: 'assistant',
+      content: '',
+      tool_calls: [toolCall]
+    });
+    
+    // Execute tool (simplified)
+    const toolResult = { temperature: 22, condition: 'Sunny' };
+    
+    // Add tool response to history
+    history.push({
+      tool_call_id: toolCall.id,
+      role: 'tool',
+      name: toolCall.name,
+      content: JSON.stringify(toolResult)
+    });
+    
+    // Get updated response
+    const response2 = await ollama.tools.callWithTools({
+      model: 'llama3',
+      messages: history,
+      tools
+    });
+    
+    history.push({ role: 'assistant', content: response2.message.content });
+  }
+  
+  // User's follow-up question
+  history.push({ role: 'user', content: 'What about Osaka?' });
+  
+  // Continue the conversation
+  const response3 = await ollama.tools.callWithTools({
+    model: 'llama3',
+    messages: history,
+    tools
+  });
+  
+  console.log('Final response:', response3.message.content);
+}
+```
+
+## Loading Tool Definitions from JSON
+
+For more complex or reusable tools, store definitions in a JSON file:
+
+```javascript
+import * as fs from 'fs';
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+async function useToolsFromFile() {
+  const ollama = new OllamaKit();
+  
+  // Load tools from JSON file
+  const toolsJson = fs.readFileSync('./tools/weather-tools.json', 'utf8');
+  const tools = JSON.parse(toolsJson);
+  
+  const response = await ollama.tools.callWithTools({
+    model: 'llama3',
+    prompt: 'What's the weather in Paris?',
+    tools
+  });
+  
+  // Process response...
+}
+```
+
+Example `weather-tools.json`:
+
+```json
+[
+  {
+    "type": "function",
+    "name": "get_weather",
+    "description": "Get the current weather for a location",
+    "parameters": {
+      "type": "object",
+      "required": ["location"],
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "City name, e.g., 'Paris, France'"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["celsius", "fahrenheit"],
+          "description": "Temperature unit"
+        }
+      }
+    }
+  }
+]
+```
+
+## Integrating with External APIs
+
+A more realistic example integrating with a weather API:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+import axios from 'axios';
+
+const ollama = new OllamaKit();
+
+// Define the weather tool
+const weatherTool = {
+  type: "function",
+  name: "get_weather",
+  description: "Get the current weather for a location",
+  parameters: {
+    type: "object",
+    required: ["location"],
+    properties: {
+      location: {
+        type: "string",
+        description: "City name, e.g., 'New York, NY'"
+      }
+    }
+  }
+};
+
+// Function to get weather data from a weather API
+async function fetchWeather(location) {
+  try {
+    // Replace with your preferred weather API
+    const response = await axios.get(`https://api.weatherapi.com/v1/current.json`, {
+      params: {
+        key: process.env.WEATHER_API_KEY,
+        q: location
+      }
+    });
+    
+    return {
+      temperature: response.data.current.temp_c,
+      condition: response.data.current.condition.text,
+      humidity: response.data.current.humidity,
+      windSpeed: response.data.current.wind_kph
+    };
+  } catch (error) {
+    console.error('Error fetching weather:', error);
+    return { error: 'Failed to fetch weather data' };
+  }
+}
+
+async function weatherAssistant() {
+  const response = await ollama.tools.callWithTools({
+    model: 'llama3',
+    prompt: 'What is the weather like in London today?',
+    tools: [weatherTool]
+  });
+  
+  console.log('Initial response:', response.message.content);
+  
+  if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+    const toolCall = response.message.tool_calls[0];
+    
+    if (toolCall.name === 'get_weather') {
+      const location = toolCall.input.location;
+      const weatherData = await fetchWeather(location);
+      
+      const finalResponse = await ollama.tools.executeToolCalls(
+        {
+          model: 'llama3',
+          prompt: 'What is the weather like in London today?',
+          tools: [weatherTool]
+        },
+        [toolCall],
+        [{
+          tool_call_id: toolCall.id,
+          role: 'tool',
+          name: toolCall.name,
+          content: JSON.stringify(weatherData)
+        }]
+      );
+      
+      console.log('Final response with weather data:', finalResponse.message.content);
+    }
+  }
+}
+```
+
+## CLI Usage for Tool Calling
+
+The SDK also provides CLI functionality for tool calling:
+
+```bash
+# Define tools in a JSON file (tools.json)
+# Then use the CLI to call with tools
+ollama-sdk tools -m llama3 -p "What's the weather in Paris?" --tools-file ./tools.json
+```
+
+## Best Practices
+
+1. **Clear Tool Definitions**: Provide clear names, descriptions, and parameter information
+2. **Error Handling**: Properly handle errors in tool execution and pass them back to the model
+3. **Type Safety**: Use TypeScript interfaces for your tool definitions and responses
+4. **Tool Selection**: Only provide tools relevant to the current context
+5. **Security**: Validate inputs and sanitize outputs when executing tools
+6. **Rate Limiting**: Implement rate limiting for external API calls
+
+## Conclusion
+
+Tool calling is a powerful feature that extends what LLMs can do. With Ollama SDK, you can easily implement this functionality in your applications, allowing your AI to access external data, perform calculations, or take actions in the real world.
+
+For more examples, check out the [tools example](/docs/examples/tool-example) in the examples section. 

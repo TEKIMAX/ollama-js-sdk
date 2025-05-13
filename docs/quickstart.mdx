@@ -1,0 +1,265 @@
+---
+title: 'Quickstart Guide'
+description: 'Start using Ollama SDK in minutes with these examples'
+---
+
+# Quickstart Guide
+
+This guide will help you get up and running with the Ollama SDK in minutes. We'll cover the most common use cases to help you start building applications with Ollama.
+
+## Basic Text Generation
+
+The most common use case for Ollama is generating text responses. Here's how to do that with the SDK:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+// Initialize the client
+const ollama = new OllamaKit();
+
+async function generateText() {
+  const response = await ollama.generate({
+    model: 'llama2', // or any model you have pulled
+    prompt: 'Explain the concept of quantum entanglement simply',
+    temperature: 0.7 // Controls randomness (0.0-1.0)
+  });
+  
+  console.log(response.response);
+}
+
+generateText().catch(console.error);
+```
+
+## Streaming Responses
+
+For a better user experience with longer responses, you can stream the text as it's generated:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function streamText() {
+  const stream = await ollama.generateStream({
+    model: 'llama2',
+    prompt: 'Write a short story about a robot discovering emotions',
+    temperature: 0.8
+  });
+  
+  for await (const chunk of stream) {
+    // Print each chunk as it arrives
+    process.stdout.write(chunk.response);
+    
+    // When the generation is complete
+    if (chunk.done) {
+      console.log('\n\nGeneration complete!');
+    }
+  }
+}
+
+streamText().catch(console.error);
+```
+
+## Creating Embeddings
+
+Embeddings are vector representations of text that capture semantic meaning, useful for similarity search:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function createEmbedding() {
+  const embedding = await ollama.createEmbedding({
+    model: 'nomic-embed-text', // or any embedding model you have
+    prompt: 'The quick brown fox jumps over the lazy dog'
+  });
+  
+  console.log(`Created embedding with ${embedding.embedding.length} dimensions`);
+  console.log(`First few values: [${embedding.embedding.slice(0, 5).join(', ')}...]`);
+  
+  return embedding.embedding;
+}
+
+createEmbedding().catch(console.error);
+```
+
+## Managing Models
+
+You can list, pull, and get information about models:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function manageModels() {
+  // List all available models
+  console.log('Listing available models...');
+  const models = await ollama.listModels();
+  console.log(`Found ${models.models.length} models:`);
+  models.models.forEach(model => {
+    console.log(`- ${model.name} (${(model.size / 1024 / 1024 / 1024).toFixed(2)} GB)`);
+  });
+  
+  // Pull a new model (uncomment to use)
+  /*
+  console.log('Pulling a new model...');
+  await ollama.pullModel({
+    name: 'mistral:latest'
+  });
+  console.log('Model pulled successfully');
+  */
+  
+  // Get model details
+  if (models.models.length > 0) {
+    const modelName = models.models[0].name;
+    console.log(`Getting details for model: ${modelName}`);
+    const details = await ollama.showModel({ name: modelName });
+    console.log('Model details:', details);
+  }
+}
+
+manageModels().catch(console.error);
+```
+
+## Using the OpenAI Compatibility Layer
+
+If you're migrating from OpenAI's API, you can use the compatibility layer:
+
+```javascript
+import { OpenAICompatManager } from '@tekimax/ollama-sdk/openai';
+
+async function useOpenAICompat() {
+  // Initialize the OpenAI-compatible client
+  const openai = new OpenAICompatManager({
+    host: 'http://localhost:11434',
+    defaultModel: 'llama2'
+  });
+  
+  // Use OpenAI-style API calls
+  const completion = await openai.chat.completions.create({
+    model: 'llama2',
+    messages: [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'What is the capital of France?' }
+    ],
+    temperature: 0.7
+  });
+  
+  console.log(completion.choices[0].message.content);
+}
+
+useOpenAICompat().catch(console.error);
+```
+
+## Using Tool Calling
+
+For models that support function calling, you can use the tool calling API:
+
+```javascript
+import { OllamaKit } from '@tekimax/ollama-sdk';
+
+const ollama = new OllamaKit();
+
+async function useFunctionCalling() {
+  // Define tools (functions the model can call)
+  const tools = [
+    {
+      type: "function",
+      name: "get_weather",
+      description: "Get the current weather for a location",
+      parameters: {
+        type: "object",
+        required: ["location"],
+        properties: {
+          location: {
+            type: "string",
+            description: "City name, e.g., 'San Francisco, CA'"
+          },
+          unit: {
+            type: "string",
+            enum: ["celsius", "fahrenheit"],
+            description: "Temperature unit"
+          }
+        }
+      }
+    }
+  ];
+  
+  // Call the model with tools
+  const response = await ollama.tools.callWithTools({
+    model: 'llama3', // Model must support function calling
+    prompt: 'What is the weather like in Paris today?',
+    tools,
+    temperature: 0.7
+  });
+  
+  console.log('Model response:', response.message.content);
+  
+  // Check if the model wants to use tools
+  if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+    const toolCall = response.message.tool_calls[0];
+    console.log(`Model wants to use tool: ${toolCall.name}`);
+    console.log(`With parameters:`, toolCall.input);
+    
+    // In a real app, you would execute the tool here
+    const weatherResult = {
+      temperature: 22,
+      condition: "Sunny",
+      humidity: 45,
+      location: "Paris"
+    };
+    
+    // Send tool results back to the model
+    const finalResponse = await ollama.tools.executeToolCalls(
+      {
+        model: 'llama3',
+        prompt: 'What is the weather like in Paris today?',
+        tools
+      },
+      [toolCall],
+      [{
+        tool_call_id: toolCall.id,
+        role: "tool",
+        name: toolCall.name,
+        content: JSON.stringify(weatherResult)
+      }]
+    );
+    
+    console.log('Final response with tool results:', finalResponse.message.content);
+  }
+}
+
+useFunctionCalling().catch(console.error);
+```
+
+## CLI Usage
+
+The SDK also includes a command-line interface for quick interactions:
+
+```bash
+# List available models
+ollama-sdk list
+
+# Generate text
+ollama-sdk generate -m llama2 -p "Write a haiku about programming"
+
+# Stream response
+ollama-sdk generate -m llama2 -p "Tell me a story" --stream
+
+# Create embeddings
+ollama-sdk embed -m nomic-embed-text -p "Semantic text analysis"
+
+# Use tools
+ollama-sdk tools -m llama3 -p "What's the weather in Tokyo?" --tools-file weather-tools.json
+```
+
+## Next Steps
+
+Now that you're familiar with the basics of the Ollama SDK, you can:
+
+- Explore the [complete API reference](/docs/api/overview)
+- Learn about [advanced usage patterns](/docs/guides/advanced-usage)
+- Check out the [example projects](/docs/examples/chat)
+- Read about [tool calling capabilities](/docs/guides/tool-calling) 
