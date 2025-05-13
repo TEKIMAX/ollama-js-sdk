@@ -1,4 +1,4 @@
-# Ollama JavaScript SDK by Tekimax
+# Ollama JavaScript SDK
 
 A comprehensive TypeScript SDK for interacting with the Ollama API, providing a clean interface for working with large language models.
 
@@ -72,6 +72,122 @@ generateText().catch(console.error);
 - **Fine-tuning**: Fine-tune models with custom datasets
 - **Streaming Support**: Handle streaming responses with a convenient parser
 - **CLI Interface**: Use the SDK from the command line
+
+## CLI Command Reference
+
+Here's a complete list of CLI commands available in the SDK:
+
+```bash
+# Show help information
+npx ollama-sdk help
+
+# List all available models
+npx ollama-sdk list
+
+# Generate text with default model (llama2)
+npx ollama-sdk generate --prompt "Write a short story about AI"
+
+# Generate text with a specific model
+npx ollama-sdk generate --model mistral --prompt "Explain quantum computing"
+
+# Stream the response token by token
+npx ollama-sdk generate --model llama2 --prompt "Write a poem" --stream
+
+# Create embeddings for text analysis
+npx ollama-sdk embed --model llama2 --prompt "This is a sample text"
+
+# Connect to a custom Ollama server
+npx ollama-sdk list --host http://my-ollama-server:11434
+```
+
+## CLI Tutorial: Getting Started
+
+### Step 1: Install the SDK
+
+```bash
+npm install -g @tekimax/ollama-sdk
+```
+
+### Step 2: Check Available Models
+
+First, let's see what models are available on your Ollama instance:
+
+```bash
+ollama-sdk list
+```
+
+Output:
+```
+Available models:
+- llama2 (3.82 GB)
+- mistral (4.10 GB)
+- ...
+```
+
+### Step 3: Generate Text
+
+Generate a completion using a simple prompt:
+
+```bash
+ollama-sdk generate --model llama2 --prompt "What are the benefits of quantum computing?"
+```
+
+For a better user experience with longer responses, try using the streaming flag:
+
+```bash
+ollama-sdk generate --model llama2 --prompt "Write a short blog post about AI ethics" --stream
+```
+
+### Step 4: Work with Embeddings
+
+Create vector embeddings for semantic analysis:
+
+```bash
+ollama-sdk embed --model llama2 --prompt "Artificial intelligence is revolutionizing industries"
+```
+
+Output:
+```
+Creating embedding with model: llama2
+Text: Artificial intelligence is revolutionizing industries
+Embedding (4096 dimensions):
+[0.123, -0.456, 0.789, 0.012, -0.345...]
+```
+
+### Step 5: Using Shortcuts
+
+All commands support shorthand options:
+
+```bash
+# Using shortcuts
+ollama-sdk generate -m llama2 -p "Hello world" -s
+
+# Equivalent to
+ollama-sdk generate --model llama2 --prompt "Hello world" --stream
+```
+
+### Step 6: Custom Server
+
+Connect to a remote Ollama server:
+
+```bash
+ollama-sdk list -h http://remote-server:11434
+```
+
+### Advanced Usage: Shell Pipelines
+
+You can use the CLI in shell pipelines for more complex workflows:
+
+```bash
+# Generate a text file from a prompt
+ollama-sdk generate -m llama2 -p "Write a story" > story.txt
+
+# Generate text from a file input
+cat prompt.txt | xargs ollama-sdk generate -m llama2 -p
+
+# Process multiple prompts in batch
+cat prompts.txt | while read prompt; do ollama-sdk generate -m llama2 -p "$prompt"; done > responses.txt
+```
 
 ## API Reference
 
@@ -174,21 +290,6 @@ for await (const chunk of StreamParser.parse(response)) {
 
 // Or collect the full text
 const fullText = await StreamParser.collectFullText(response);
-```
-
-## Command Line Interface
-
-This SDK comes with a built-in CLI for common operations:
-
-```bash
-# List available models
-npx ollama-sdk list
-
-# Generate text
-npx ollama-sdk generate --model llama2 --prompt "Hello, world!" --stream
-
-# Create embeddings
-npx ollama-sdk embed --model llama2 --prompt "Text to embed"
 ```
 
 ## Educational Uses
