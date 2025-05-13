@@ -2,6 +2,13 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.0.9] - 2025-05-15
+
+### Fixed
+- Updated README badges to correctly reference the scoped package name
+- Fixed installation instructions to use the correct package name
+- Updated CLI examples with proper package reference
+
 ## [1.0.8] - 2025-05-15
 
 ### Changed

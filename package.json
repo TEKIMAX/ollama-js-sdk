@@ -1,6 +1,6 @@
 {
   "name": "@tekimax/ollama-sdk",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "TypeScript SDK for Ollama API by Tekimax",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
