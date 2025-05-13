@@ -2,6 +2,21 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.0.7] - 2025-05-15
+
+### Added
+- Modern styled README with badges and improved documentation
+- Enhanced CLI with colorful output using chalk
+- Visual improvements with ASCII art banner using figlet
+- Loading animations with ora spinners
+- Gradient text effects for better visual appeal
+
+### Fixed
+- Resolved ESM compatibility issues with CLI dependencies
+- Fixed TypeScript linter errors
+- Clarified API key requirements in documentation
+- Improved CLI output formatting with template literals
+
 ## [1.0.6] - 2025-05-13
 
 ### Added

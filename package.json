@@ -1,11 +1,11 @@
 {
   "name": "@tekimax/ollama-sdk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "TypeScript SDK for Ollama API by Tekimax",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "ollama-sdk": "./dist/cli.js"
+    "ollama-sdk": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -34,14 +34,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TEKIMAX/ollama-js-sdk.git"
+    "url": "git+https://github.com/TEKIMAX/ollama-js-sdk.git"
   },
   "bugs": {
     "url": "https://github.com/TEKIMAX/ollama-js-sdk/issues"
   },
   "homepage": "https://github.com/TEKIMAX/ollama-js-sdk#readme",
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "figlet": "^1.8.1",
+    "gradient-string": "^2.0.2",
+    "ora": "^5.4.1"
+  },
   "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "@types/gradient-string": "^1.1.6",
     "@types/node": "^18.16.0",
     "typescript": "^5.0.4"
   },
