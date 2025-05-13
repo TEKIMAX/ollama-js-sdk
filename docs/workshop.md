@@ -21,6 +21,8 @@ This workshop provides a comprehensive, hands-on introduction to the @tekimax/ol
   - [Working with Embeddings](#working-with-embeddings)
   - [API Exercises](#api-exercises)
 - [Part 3: Advanced Topics](#part-3-advanced-topics)
+  - [Tool Calling with Models](#tool-calling-with-models)
+  - [Tool Calling with the CLI](#tool-calling-with-the-cli)
   - [OpenAI Compatibility Layer](#openai-compatibility-layer)
   - [Error Handling and Retries](#error-handling-and-retries)
   - [Performance Optimization](#performance-optimization)
@@ -464,6 +466,156 @@ node embeddings.js
 ## Part 3: Advanced Topics
 
 This section covers more advanced usage of the Ollama SDK.
+
+### Tool Calling with Models
+
+Many advanced LLMs now support tool or function calling capabilities, which allow the model to request the execution of external functions to access data or perform actions. The Ollama SDK provides support for this functionality.
+
+Create a new file:
+
+```bash
+touch tool-calling.js
+```
+
+Add the following code:
+
+```javascript
+// tool-calling.js
+const { OllamaKit } = require('@tekimax/ollama-sdk');
+
+async function demonstrateToolCalling() {
+  // Initialize the client
+  const ollama = new OllamaKit();
+  
+  // Define tools (functions the model can call)
+  const tools = [
+    {
+      type: "function",
+      name: "get_weather",
+      description: "Get the current weather for a location",
+      parameters: {
+        type: "object",
+        required: ["location"],
+        properties: {
+          location: {
+            type: "string",
+            description: "The city name, e.g., 'San Francisco, CA'"
+          },
+          unit: {
+            type: "string",
+            enum: ["celsius", "fahrenheit"],
+            description: "The unit of temperature"
+          }
+        }
+      }
+    }
+  ];
+  
+  console.log('Calling model with tools...');
+  
+  try {
+    // Call the model with tools
+    const response = await ollama.tools.callWithTools({
+      model: 'llama3', // Use a model that supports tool calling
+      prompt: 'What is the weather like in New York?',
+      tools: tools,
+      temperature: 0.7
+    });
+    
+    console.log('Model response:', response.message.content);
+    
+    // Check if the model wants to use tools
+    if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+      console.log('The model requested to use tools:');
+      
+      const toolCalls = response.message.tool_calls;
+      // In a real application, you would execute the tools here
+      
+      for (const toolCall of toolCalls) {
+        console.log(`- Tool: ${toolCall.name}`);
+        console.log(`  Input: ${JSON.stringify(toolCall.input, null, 2)}`);
+        
+        // Mock tool execution
+        const toolResult = { 
+          temperature: 72, 
+          unit: "fahrenheit", 
+          condition: "sunny" 
+        };
+        
+        console.log(`  Result: ${JSON.stringify(toolResult, null, 2)}`);
+        
+        // Send tool results back to the model
+        const followUpResponse = await ollama.tools.executeToolCalls(
+          {
+            model: 'llama3',
+            prompt: 'What is the weather like in New York?',
+            tools: tools
+          },
+          [toolCall],
+          [{
+            tool_call_id: toolCall.id,
+            role: "tool",
+            name: toolCall.name,
+            content: JSON.stringify(toolResult)
+          }]
+        );
+        
+        console.log('Final response with tool results:', followUpResponse.message.content);
+      }
+    } else {
+      console.log('No tools were called by the model.');
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+demonstrateToolCalling().catch(console.error);
+```
+
+Run the script:
+
+```bash
+node tool-calling.js
+```
+
+**Workshop Activity #14:**
+1. Expand the tools with additional functions (e.g., search, calculator, etc.)
+2. Create a streaming version of the tool calling example
+3. Implement actual tool execution (e.g., using a weather API or other services)
+
+### Tool Calling with the CLI
+
+You can also use tool calling via the CLI:
+
+```bash
+# First, create a JSON file with tool definitions
+echo '[
+  {
+    "type": "function",
+    "name": "get_weather",
+    "description": "Get the current weather for a location",
+    "parameters": {
+      "type": "object",
+      "required": ["location"],
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "The city name, e.g., San Francisco, CA"
+        }
+      }
+    }
+  }
+]' > weather-tools.json
+
+# Then call the CLI with tools
+ollama-sdk tools -m llama3 -p "What's the weather like in Tokyo?" --tools-file weather-tools.json
+```
+
+**Workshop Activity #15:**
+1. Create a more complex tools JSON file with multiple functions
+2. Experiment with different prompts to see when tools get called
+3. Compare how different models use tool calling capability
 
 ### OpenAI Compatibility Layer
 

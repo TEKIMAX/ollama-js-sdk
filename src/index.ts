@@ -4,9 +4,13 @@ import { ModelManager } from './models/ModelManager';
 import { EmbeddingsManager } from './embeddings/EmbeddingsManager';
 import { FineTuningManager } from './finetuning/FineTuningManager';
 import { OpenAICompatManager } from './openai/OpenAICompatManager';
+import { ToolsManager } from './tools/ToolsManager';
 
 // Export OpenAI compatibility types
 export * from './openai/types';
+
+// Export tool types
+export * from './tools/ToolsManager';
 
 // Export all modules
 export {
@@ -14,7 +18,8 @@ export {
   ModelManager,
   EmbeddingsManager,
   FineTuningManager,
-  OpenAICompatManager
+  OpenAICompatManager,
+  ToolsManager
 };
 
 // Export default client

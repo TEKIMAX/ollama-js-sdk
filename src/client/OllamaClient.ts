@@ -3,6 +3,7 @@ import { ModelManager } from '../models/ModelManager';
 import { EmbeddingsManager } from '../embeddings/EmbeddingsManager';
 import { FineTuningManager } from '../finetuning/FineTuningManager';
 import { OpenAICompatManager } from '../openai/OpenAICompatManager';
+import { ToolsManager } from '../tools/ToolsManager';
 
 export interface OllamaClientOptions {
   baseUrl: string;
@@ -17,6 +18,7 @@ export class OllamaClient {
   public embeddings: EmbeddingsManager;
   public fineTuning: FineTuningManager;
   public openai: OpenAICompatManager;
+  public tools: ToolsManager;
 
   constructor({ baseUrl = 'http://localhost:11434', apiKey }: OllamaClientOptions = { baseUrl: 'http://localhost:11434' }) {
     this.baseUrl = baseUrl;
@@ -27,6 +29,7 @@ export class OllamaClient {
     this.embeddings = new EmbeddingsManager(this);
     this.fineTuning = new FineTuningManager(this);
     this.openai = new OpenAICompatManager(this);
+    this.tools = new ToolsManager(this);
   }
 
   public getBaseUrl() {

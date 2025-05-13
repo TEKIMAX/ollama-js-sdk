@@ -1,0 +1,84 @@
+[
+  {
+    "type": "function",
+    "name": "web_search",
+    "description": "Search the web for current information on a topic",
+    "parameters": {
+      "type": "object",
+      "required": ["query"],
+      "properties": {
+        "query": {
+          "type": "string", 
+          "description": "The search query"
+        },
+        "num_results": {
+          "type": "integer",
+          "description": "The number of search results to return",
+          "default": 5
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "name": "get_current_weather",
+    "description": "Get the current weather in a given location",
+    "parameters": {
+      "type": "object",
+      "required": ["location"],
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "The city and state, e.g. San Francisco, CA"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["celsius", "fahrenheit"],
+          "description": "The unit of temperature to use",
+          "default": "celsius"
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "name": "search_documents",
+    "description": "Search through a collection of documents or knowledge base",
+    "parameters": {
+      "type": "object",
+      "required": ["query"],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The search query"
+        },
+        "filter": {
+          "type": "object",
+          "description": "Optional filters to apply to the search",
+          "properties": {
+            "date_range": {
+              "type": "object",
+              "properties": {
+                "start_date": {
+                  "type": "string",
+                  "description": "The start date in YYYY-MM-DD format"
+                },
+                "end_date": {
+                  "type": "string",
+                  "description": "The end date in YYYY-MM-DD format"
+                }
+              }
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of document categories to filter by"
+            }
+          }
+        }
+      }
+    }
+  }
+] 

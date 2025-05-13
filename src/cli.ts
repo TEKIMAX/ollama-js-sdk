@@ -8,6 +8,9 @@ import * as figlet from 'figlet';
 import ora from 'ora';
 import gradientString from 'gradient-string';
 import { createInterface } from 'node:readline';
+import { ToolCall } from './tools/ToolsManager';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -61,6 +64,9 @@ async function main() {
         break;
       case 'remove':
         await removeModel(client);
+        break;
+      case 'tools':
+        await useTools(client);
         break;
       case 'tutorial':
         await runInteractiveTutorial(client);
@@ -709,45 +715,41 @@ async function createEmbedding(client: OllamaClient) {
 }
 
 function showHelp() {
-  console.log(chalk.cyan('📘 Command Reference:'));
-  console.log(chalk.cyan('  ollama-sdk [command] [options]'));
-  console.log('');
+  console.log(chalk.cyan('📚 Tekimax Ollama SDK CLI Help'));
+  console.log(`\n${chalk.cyan('Usage:')} ollama-sdk <command> [options]\n`);
   
-  console.log(chalk.cyan('📋 Commands:'));
-  console.log(chalk.yellow('  list                   ') + 'List available models');
-  console.log(chalk.yellow('  generate               ') + 'Generate text from a prompt');
-  console.log(chalk.yellow('  embed                  ') + 'Create embeddings from text');
-  console.log(chalk.yellow('  pull                   ') + 'Pull a new model');
-  console.log(chalk.yellow('  show                   ') + 'Show information about a model');
-  console.log(chalk.yellow('  remove                 ') + 'Remove a model');
-  console.log(chalk.yellow('  tutorial               ') + 'Run interactive tutorial');
-  console.log(chalk.yellow('  help                   ') + 'Show this help message');
-  console.log('');
+  console.log(chalk.bold('Available Commands:'));
   
-  console.log(chalk.cyan('🔧 Options:'));
-  console.log(chalk.yellow('  --host, -h            ') + 'Ollama host URL (default: http://localhost:11434)');
-  console.log(chalk.yellow('  --model, -m           ') + 'Model name (default: llama2)');
-  console.log(chalk.yellow('  --prompt, -p          ') + 'Input prompt');
-  console.log(chalk.yellow('  --stream, -s          ') + 'Stream response (only for generate command)');
-  console.log(chalk.yellow('  --temperature, -t     ') + 'Temperature for generation (0.0-1.0)');
-  console.log(chalk.yellow('  --top-p               ') + 'Top-p sampling (0.0-1.0)');
-  console.log(chalk.yellow('  --insecure            ') + 'Allow insecure connections (only for pull command)');
-  console.log('');
+  console.log(`${chalk.green('list')}\t\t\tList available models`);
+  console.log(`${chalk.green('generate')}\t\tGenerate text with a model`);
+  console.log(`${chalk.green('embed')}\t\t\tCreate embeddings from text`);
+  console.log(`${chalk.green('pull')}\t\t\tPull a model from Ollama registry`);
+  console.log(`${chalk.green('show')}\t\t\tShow details about a model`);
+  console.log(`${chalk.green('remove')}\t\tRemove a model`);
+  console.log(`${chalk.green('tools')}\t\t\tUse tools with a model`);
+  console.log(`${chalk.green('tutorial')}\t\tRun an interactive tutorial`);
+  console.log(`${chalk.green('help')}\t\t\tShow this help message`);
   
-  console.log(chalk.cyan('📊 Examples:'));
-  console.log(chalk.yellow('  # List all models'));
-  console.log('  ollama-sdk list');
-  console.log(chalk.yellow('  # Generate text with a specific model'));
-  console.log('  ollama-sdk generate -m llama2 -p "Tell me about AI" -s');
-  console.log(chalk.yellow('  # Create embeddings'));
-  console.log('  ollama-sdk embed -m llama2 -p "Semantic text representation"');
-  console.log(chalk.yellow('  # Pull a new model'));
-  console.log('  ollama-sdk pull -m mistral');
-  console.log(chalk.yellow('  # Show model details'));
-  console.log('  ollama-sdk show -m llama2');
-  console.log(chalk.yellow('  # Remove a model'));
-  console.log('  ollama-sdk remove -m unused-model');
-  console.log('');
+  console.log('\nOptions:');
+  console.log(`${chalk.yellow('--host, -h')}\t\tSpecify Ollama server URL (default: http://localhost:11434)`);
+  console.log(`${chalk.yellow('--model, -m')}\t\tSpecify model name`);
+  console.log(`${chalk.yellow('--prompt, -p')}\tSpecify prompt text`);
+  console.log(`${chalk.yellow('--system, -s')}\tSpecify system prompt`);
+  console.log(`${chalk.yellow('--temperature, -t')}\tSpecify temperature (0.0-1.0)`);
+  console.log(`${chalk.yellow('--stream')}\t\tStream the response`);
+  console.log(`${chalk.yellow('--format')}\t\tSpecify output format (json, etc.)`);
+  console.log(`${chalk.yellow('--tools-file')}\tSpecify JSON file containing tools definition`);
+  
+  console.log(`\n${chalk.bold('Examples:')}`);
+  console.log(`  ${chalk.yellow('ollama-sdk generate -m llama2 -p "Tell me a story"')}`);
+  console.log(`  ${chalk.yellow('ollama-sdk embed -m nomic-embed-text -p "Semantic text analysis"')}`);
+  console.log(`  ${chalk.yellow('ollama-sdk tools -m llama3 -p "Search for news about AI" --tools-file search-tools.json')}`);
+  
+  console.log(`\n${chalk.bold('Tool Usage:')}`);
+  console.log(`  Create a JSON file with tool definitions and use with the tools command:`);
+  console.log(`  ${chalk.yellow('ollama-sdk tools -m llama3 -p "What is the weather in New York?" --tools-file weather-tools.json')}`);
+  
+  console.log('\nFor more information, visit: https://github.com/TEKIMAX/ollama-js-sdk');
 }
 
 function formatBytes(bytes: number) {
@@ -757,6 +759,149 @@ function formatBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   
   return `${(bytes / (1024 ** i)).toFixed(2)} ${sizes[i]}`;
+}
+
+async function useTools(client: OllamaClient) {
+  // Parse command line arguments
+  const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
+  const promptIndex = args.findIndex(arg => arg === '--prompt' || arg === '-p');
+  const systemIndex = args.findIndex(arg => arg === '--system' || arg === '-s');
+  const tempIndex = args.findIndex(arg => arg === '--temperature' || arg === '-t');
+  const streamFlag = args.includes('--stream');
+  const toolsFileIndex = args.findIndex(arg => arg === '--tools-file');
+  
+  // Extract values
+  const model = modelIndex >= 0 && args.length > modelIndex + 1 
+    ? args[modelIndex + 1] 
+    : 'llama3';
+    
+  const prompt = promptIndex >= 0 && args.length > promptIndex + 1 
+    ? args[promptIndex + 1]
+    : '';
+    
+  const system = systemIndex >= 0 && args.length > systemIndex + 1 
+    ? args[systemIndex + 1]
+    : 'You are a helpful assistant that can use tools to provide better answers.';
+    
+  const temperature = tempIndex >= 0 && args.length > tempIndex + 1 
+    ? parseFloat(args[tempIndex + 1])
+    : 0.7;
+    
+  const toolsFile = toolsFileIndex >= 0 && args.length > toolsFileIndex + 1 
+    ? args[toolsFileIndex + 1]
+    : '';
+  
+  // Validate required parameters
+  if (!prompt) {
+    console.log(chalk.red('Error: Prompt is required. Use --prompt or -p option.'));
+    process.exit(1);
+  }
+  
+  if (!toolsFile) {
+    console.log(chalk.red('Error: Tools file is required. Use --tools-file option.'));
+    process.exit(1);
+  }
+  
+  let tools;
+  try {
+    // Load tools from the specified file
+    const toolsData = fs.readFileSync(path.resolve(toolsFile), 'utf8');
+    tools = JSON.parse(toolsData);
+  } catch (error) {
+    console.log(chalk.red(`Error loading tools file: ${error.message}`));
+    process.exit(1);
+  }
+  
+  // Display request information
+  console.log(chalk.cyan('🛠️  Using Tools'));
+  console.log(chalk.white(`Model: ${chalk.bold(model)}`));
+  console.log(chalk.white(`Tools: ${chalk.bold(tools.length)} loaded from ${toolsFile}`));
+  console.log(chalk.white(`Prompt: "${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"`));
+  
+  // Call with tools
+  const spinner = ora({
+    text: chalk.blue('Generating response with tools...'),
+    spinner: 'dots',
+    color: 'blue'
+  }).start();
+  
+  try {
+    if (streamFlag) {
+      // Handle streaming response
+      spinner.succeed(chalk.green('Started streaming response:'));
+      
+      const stream = await client.tools.callWithToolsStream({
+        model,
+        prompt,
+        system,
+        tools,
+        stream: true,
+        temperature
+      });
+      
+      console.log(chalk.cyan(`\n┌${'─'.repeat(60)}┐`));
+      
+      let toolCalls: ToolCall[] = [];
+      let lastResponse = '';
+      
+      for await (const chunk of StreamParser.parse(stream)) {
+        if (chunk.message?.content) {
+          process.stdout.write(chunk.message.content);
+          lastResponse = chunk.message.content;
+        }
+        
+        if (chunk.message?.tool_calls) {
+          toolCalls = chunk.message.tool_calls;
+        }
+      }
+      
+      console.log(`\n${chalk.cyan(`└${'─'.repeat(60)}┘`)}`);
+      
+      // Handle any tool calls
+      if (toolCalls.length > 0) {
+        console.log(chalk.bold.yellow('\n⚡ Tool Calls Detected'));
+        
+        for (const toolCall of toolCalls) {
+          console.log(chalk.bold.cyan(`\nTool: ${toolCall.name}`));
+          console.log(chalk.white(`Input: ${JSON.stringify(toolCall.input, null, 2)}`));
+          
+          // In a real implementation, you would execute the tool here
+          console.log(chalk.yellow('Tool execution not implemented in CLI demo.'));
+        }
+      }
+    } else {
+      // Handle non-streaming response
+      const response = await client.tools.callWithTools({
+        model,
+        prompt,
+        system,
+        tools,
+        temperature
+      });
+      
+      spinner.succeed(chalk.green('Generated response:'));
+      
+      console.log(chalk.cyan(`\n┌${'─'.repeat(60)}┐`));
+      console.log(response.message.content);
+      console.log(chalk.cyan(`└${'─'.repeat(60)}┘`));
+      
+      // Handle any tool calls
+      if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+        console.log(chalk.bold.yellow('\n⚡ Tool Calls Detected'));
+        
+        for (const toolCall of response.message.tool_calls) {
+          console.log(chalk.bold.cyan(`\nTool: ${toolCall.name}`));
+          console.log(chalk.white(`Input: ${JSON.stringify(toolCall.input, null, 2)}`));
+          
+          // In a real implementation, you would execute the tool here
+          console.log(chalk.yellow('Tool execution not implemented in CLI demo.'));
+        }
+      }
+    }
+  } catch (error) {
+    spinner.fail(chalk.red('Tool usage failed'));
+    console.error(chalk.yellow('⚠️  Error details:'), error);
+  }
 }
 
 main().catch(error => {
