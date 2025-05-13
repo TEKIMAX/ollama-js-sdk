@@ -1,7 +1,7 @@
-# tekimax-ollama-sdk
+# @tekimax/ollama-sdk
 
-![npm](https://img.shields.io/npm/v/tekimax-ollama-sdk)
-![License](https://img.shields.io/npm/l/tekimax-ollama-sdk)
+![npm](https://img.shields.io/npm/v/@tekimax/ollama-sdk)
+![License](https://img.shields.io/npm/l/@tekimax/ollama-sdk)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.9%2B-blue)
 
 > A modern TypeScript SDK for interacting with Ollama API
@@ -23,22 +23,22 @@
 
 ```bash
 # Using npm
-npm install tekimax-ollama-sdk
+npm install @tekimax/ollama-sdk
 
 # Using yarn
-yarn add tekimax-ollama-sdk
+yarn add @tekimax/ollama-sdk
 
 # Using pnpm
-pnpm add tekimax-ollama-sdk
+pnpm add @tekimax/ollama-sdk
 
 # Using bun (recommended)
-bun add tekimax-ollama-sdk
+bun add @tekimax/ollama-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { OllamaClient } from 'tekimax-ollama-sdk';
+import { OllamaClient } from '@tekimax/ollama-sdk';
 
 // Initialize client
 const client = new OllamaClient({
@@ -122,13 +122,13 @@ The SDK includes a CLI for common operations:
 
 ```bash
 # List models
-npx tekimax-ollama-sdk list
+npx @tekimax/ollama-sdk list
 
 # Generate text
-npx tekimax-ollama-sdk generate --model llama2 --prompt "Hello AI" --stream
+npx @tekimax/ollama-sdk generate --model llama2 --prompt "Hello AI" --stream
 
 # Create embeddings
-npx tekimax-ollama-sdk embed --model llama2 --prompt "Vector representation"
+npx @tekimax/ollama-sdk embed --model llama2 --prompt "Vector representation"
 ```
 
 ## Contributing

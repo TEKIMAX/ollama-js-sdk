@@ -21,8 +21,11 @@ function displayBanner() {
   
   const subtitle = '   Ollama SDK CLI';
   
-  console.log(gradientString.rainbow(tekimaxArt));
-  console.log(gradientString.pastel(subtitle));
+  // Create a retro gradient with amber/blue/cyan colors
+  const retroGradient = gradientString('#ff8c00', '#1e90ff', '#00ced1', '#4169e1');
+  
+  console.log(retroGradient(tekimaxArt));
+  console.log(chalk.cyan('   Ollama SDK CLI'));
   console.log(chalk.cyan('   ========================================\n'));
 }
 

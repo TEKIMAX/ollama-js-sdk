@@ -2,6 +2,11 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.0.8] - 2025-05-15
+
+### Changed
+- Updated CLI banner with retro-style colors (amber/blue/cyan) instead of rainbow gradient
+
 ## [1.0.7] - 2025-05-15
 
 ### Added
