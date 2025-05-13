@@ -2,6 +2,13 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.0.6] - 2025-05-13
+
+### Added
+- Comprehensive CLI command reference with examples
+- Step-by-step CLI tutorial in README
+- Advanced usage examples for CLI integration with shell pipelines
+
 ## [1.0.1] - 2023-06-12
 
 ### Changed
