@@ -5,7 +5,16 @@ description: 'Learn how to use the TypeScript/JavaScript SDK for Ollama'
 
 # Getting Started with Ollama SDK
 
-The `@tekimax/ollama-sdk` is a comprehensive TypeScript/JavaScript SDK for interacting with Ollama, an API for running large language models locally. This SDK allows you to easily integrate Ollama's capabilities into your JavaScript and TypeScript applications.
+The `@tekimax/ollama-sdk` is a comprehensive TypeScript/JavaScript SDK for interacting with Ollama, an API for running large language models locally. We created this SDK specifically to simplify LLM integration for workshops, tutorials, and educational purposes.
+
+## Why We Built This SDK
+
+This SDK was designed with education in mind:
+
+- **Simplified LLM Integration**: Makes working with large language models accessible for developers of all experience levels
+- **Workshop-Ready**: Includes ready-to-use examples and exercises for LLM workshops
+- **Interactive Tutorials**: Comes with interactive tutorials to help you learn LLM concepts
+- **Local First**: Focuses on running models locally with Ollama for privacy and learning
 
 ## What is Ollama?
 
@@ -21,6 +30,15 @@ With the Ollama SDK, you can:
 - Manage and interact with different models
 - Use OpenAI-compatible interfaces with local models
 - Leverage tool-calling capabilities (function calling)
+
+## Included Workshops & Tutorials
+
+This SDK includes:
+
+1. **LLM Basics Workshop**: A step-by-step introduction to working with language models
+2. **Semantic Search Tutorial**: Learn how to implement semantic search with embeddings
+3. **Tool Calling Workshop**: Explore how to extend LLM capabilities with external tools
+4. **Interactive Chat Example**: Build a chat application with streaming responses
 
 ## Requirements
 
@@ -67,6 +85,31 @@ async function main() {
 
 main().catch(console.error);
 ```
+
+## Command & Query Interface
+
+Our SDK features a simple, intuitive command and query interface:
+
+- **Commands**: Execute actions (like pulling models)
+  ```javascript
+  // Pull a model
+  await ollama.pullModel({ name: 'llama2' });
+  ```
+
+- **Queries**: Request information (like generating text)
+  ```javascript
+  // Generate text (query)
+  const response = await ollama.generate({ 
+    model: 'llama2',
+    prompt: 'What is AI?'
+  });
+  ```
+
+## Workshop Tutorial
+
+Check out our included workshop documentation to get hands-on experience with LLMs:
+- [Workshop Setup](/docs/workshop-setup.md) - Set up your environment
+- [Workshop Guide](/docs/workshop.md) - Follow our step-by-step guide
 
 ## Next Steps
 

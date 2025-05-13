@@ -1,11 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Ollama SDK",
-  "logo": {
-    "light": "/logo/light.png",
-    "dark": "/logo/dark.png"
-  },
-  "favicon": "/favicon.png",
+  "logo": "/logo.png",
+  "favicon": "/logo.png",
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
@@ -69,8 +66,10 @@
         ]
       },
       {
-        "group": "Examples",
+        "group": "Workshops & Tutorials",
         "pages": [
+          "docs/workshop-setup",
+          "docs/workshop",
           "docs/examples/chat",
           "docs/examples/semantic-search",
           "docs/examples/tool-example"
