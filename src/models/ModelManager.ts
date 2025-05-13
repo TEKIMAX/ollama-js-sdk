@@ -63,12 +63,53 @@ export class ModelManager {
   }
   
   async pull({ name, insecure = false }: { name: string, insecure?: boolean }) {
-    const response = await this.client.makeRequest('/api/pull', {
-      method: 'POST',
-      body: JSON.stringify({ name, insecure }),
-    });
-    
-    return response;
+    try {
+      const response = await this.client.makeRequest('/api/pull', {
+        method: 'POST',
+        body: JSON.stringify({ name, insecure }),
+      });
+      
+      // For pull requests, Ollama returns a streaming response with status updates
+      // We need to consume and process this stream to ensure the model is fully pulled
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("Failed to get reader from response");
+      
+      const decoder = new TextDecoder();
+      let pullComplete = false;
+      
+      while (!pullComplete) {
+        const { done, value } = await reader.read();
+        if (done) {
+          pullComplete = true;
+          break;
+        }
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n').filter(line => line.trim());
+        
+        for (const line of lines) {
+          try {
+            const update = JSON.parse(line);
+            // Check if this is the final message indicating completion
+            if (update.status === "success" || update.completed) {
+              pullComplete = true;
+            }
+          } catch (e) {
+            // Skip invalid JSON lines
+          }
+        }
+      }
+      
+      // Verify the model was actually pulled by checking if it exists now
+      try {
+        await this.show({ name });
+        return { success: true, name };
+      } catch (error) {
+        throw new Error(`Model ${name} was not pulled successfully`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
   
   async push({ name, insecure = false }: { name: string, insecure?: boolean }) {
@@ -81,11 +122,24 @@ export class ModelManager {
   }
   
   async delete({ name }: { name: string }) {
-    const response = await this.client.makeRequest('/api/delete', {
-      method: 'DELETE',
-      body: JSON.stringify({ name }),
-    });
-    
-    return await response.json();
+    try {
+      const response = await this.client.makeRequest('/api/delete', {
+        method: 'DELETE',
+        body: JSON.stringify({ name }),
+      });
+      
+      // The API may not return valid JSON for delete operations
+      // If response.json() fails, we'll still consider it a success if status is ok
+      try {
+        return await response.json();
+      } catch (error) {
+        if (response.ok) {
+          return { success: true, name };
+        }
+        throw error;
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 } 
