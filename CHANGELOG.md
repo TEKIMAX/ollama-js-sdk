@@ -2,6 +2,19 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.1.0] - 2025-05-16
+
+### Added
+- Extended CLI functionality with model management commands:
+  - `pull` command for downloading new models
+  - `show` command for viewing model details
+  - `remove` command for deleting models
+- Advanced generation parameters support in CLI:
+  - Temperature control via `--temperature` or `-t` flag
+  - Top-p sampling via `--top-p` flag
+- Comprehensive CLI documentation in README with examples for all commands
+- Expanded model management examples in documentation
+
 ## [1.0.9] - 2025-05-15
 
 ### Fixed

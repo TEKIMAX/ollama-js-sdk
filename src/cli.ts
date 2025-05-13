@@ -54,6 +54,15 @@ async function main() {
       case 'embed':
         await createEmbedding(client);
         break;
+      case 'pull':
+        await pullModel(client);
+        break;
+      case 'show':
+        await showModel(client);
+        break;
+      case 'remove':
+        await removeModel(client);
+        break;
       default:
         showHelp();
         break;
@@ -88,6 +97,103 @@ async function listModels(client: OllamaClient) {
   }
 }
 
+async function pullModel(client: OllamaClient) {
+  const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
+  const model = modelIndex >= 0 && args.length > modelIndex + 1
+    ? args[modelIndex + 1]
+    : null;
+    
+  if (!model) {
+    console.error(chalk.red('❌ Error: Model name is required'));
+    console.log(chalk.yellow('Usage: ollama-sdk pull --model <model_name>'));
+    return;
+  }
+  
+  console.log(chalk.cyan('🔄 Pulling model:'), chalk.bold(model));
+  
+  const spinner = ora({
+    text: chalk.blue(`Downloading ${model}...`),
+    spinner: 'dots',
+    color: 'blue'
+  }).start();
+  
+  try {
+    await client.models.pull({ name: model });
+    spinner.succeed(chalk.green(`Model ${model} pulled successfully!`));
+  } catch (error) {
+    spinner.fail(chalk.red(`Failed to pull model ${model}`));
+    console.error(chalk.yellow('⚠️  Error details:'), error);
+  }
+}
+
+async function showModel(client: OllamaClient) {
+  const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
+  const model = modelIndex >= 0 && args.length > modelIndex + 1
+    ? args[modelIndex + 1]
+    : null;
+    
+  if (!model) {
+    console.error(chalk.red('❌ Error: Model name is required'));
+    console.log(chalk.yellow('Usage: ollama-sdk show --model <model_name>'));
+    return;
+  }
+  
+  const spinner = ora({
+    text: chalk.blue(`Fetching details for ${model}...`),
+    spinner: 'dots',
+    color: 'blue'
+  }).start();
+  
+  try {
+    const details = await client.models.show({ name: model });
+    spinner.succeed(chalk.green(`Model details retrieved successfully!`));
+    
+    console.log(chalk.bold.cyan('\n📝 Model Details:'));
+    console.log(chalk.bold('Name:'), chalk.green(details.modelfile?.name || model));
+    console.log(chalk.bold('License:'), chalk.yellow(details.license || 'N/A'));
+    console.log(chalk.bold('Size:'), chalk.yellow(formatBytes(details.size)));
+    
+    if (details.modelfile) {
+      console.log(chalk.bold.cyan('\n📄 Modelfile:'));
+      console.log(chalk.gray(details.modelfile.content || 'No content available'));
+    }
+    
+    console.log();
+  } catch (error) {
+    spinner.fail(chalk.red(`Failed to show model ${model}`));
+    console.error(chalk.yellow('⚠️  Error details:'), error);
+  }
+}
+
+async function removeModel(client: OllamaClient) {
+  const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
+  const model = modelIndex >= 0 && args.length > modelIndex + 1
+    ? args[modelIndex + 1]
+    : null;
+    
+  if (!model) {
+    console.error(chalk.red('❌ Error: Model name is required'));
+    console.log(chalk.yellow('Usage: ollama-sdk remove --model <model_name>'));
+    return;
+  }
+  
+  console.log(chalk.yellow('⚠️  Warning:'), chalk.red(`Removing model ${model}`));
+  
+  const spinner = ora({
+    text: chalk.blue(`Removing model ${model}...`),
+    spinner: 'dots',
+    color: 'blue'
+  }).start();
+  
+  try {
+    await client.models.delete({ name: model });
+    spinner.succeed(chalk.green(`Model ${model} removed successfully!`));
+  } catch (error) {
+    spinner.fail(chalk.red(`Failed to remove model ${model}`));
+    console.error(chalk.yellow('⚠️  Error details:'), error);
+  }
+}
+
 async function generate(client: OllamaClient) {
   const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
   const model = modelIndex >= 0 && args.length > modelIndex + 1
@@ -101,8 +207,23 @@ async function generate(client: OllamaClient) {
   
   const streamFlag = args.includes('--stream') || args.includes('-s');
   
+  // Parse optional generation parameters
+  const temperatureIndex = args.findIndex(arg => arg === '--temperature' || arg === '-t');
+  const temperature = temperatureIndex >= 0 && args.length > temperatureIndex + 1
+    ? Number.parseFloat(args[temperatureIndex + 1])
+    : undefined;
+    
+  const topPIndex = args.findIndex(arg => arg === '--top-p');
+  const top_p = topPIndex >= 0 && args.length > topPIndex + 1
+    ? Number.parseFloat(args[topPIndex + 1])
+    : undefined;
+  
   console.log(chalk.cyan('🤖 Model:'), chalk.bold(model));
   console.log(chalk.cyan('💬 Prompt:'), chalk.italic(prompt));
+  if (temperature !== undefined)
+    console.log(chalk.cyan('🌡️ Temperature:'), temperature);
+  if (top_p !== undefined)
+    console.log(chalk.cyan('📊 Top-P:'), top_p);
   
   const spinner = ora({
     text: chalk.blue('Generating response...'),
@@ -114,7 +235,9 @@ async function generate(client: OllamaClient) {
     const response = await client.models.generate({
       model,
       prompt,
-      stream: streamFlag
+      stream: streamFlag,
+      temperature,
+      top_p,
     });
     
     spinner.succeed(chalk.green('Generation started!'));
@@ -184,6 +307,9 @@ function showHelp() {
   console.log(`  ${chalk.green('list')}                   ${chalk.white('List available models')}`);
   console.log(`  ${chalk.green('generate')}               ${chalk.white('Generate text from a prompt')}`);
   console.log(`  ${chalk.green('embed')}                  ${chalk.white('Create embeddings from text')}`);
+  console.log(`  ${chalk.green('pull')}                   ${chalk.white('Pull a new model')}`);
+  console.log(`  ${chalk.green('show')}                   ${chalk.white('Show information about a model')}`);
+  console.log(`  ${chalk.green('remove')}                 ${chalk.white('Remove a model')}`);
   console.log(`  ${chalk.green('help')}                   ${chalk.white('Show this help message')}`);
   
   console.log(chalk.bold.cyan('\n🔧 Options:'));
@@ -191,6 +317,8 @@ function showHelp() {
   console.log(`  ${chalk.yellow('--model, -m')}           ${chalk.white('Model name (default: llama2)')}`);
   console.log(`  ${chalk.yellow('--prompt, -p')}          ${chalk.white('Input prompt')}`);
   console.log(`  ${chalk.yellow('--stream, -s')}          ${chalk.white('Stream response (only for generate command)')}`);
+  console.log(`  ${chalk.yellow('--temperature, -t')}     ${chalk.white('Temperature for generation (0.0-1.0)')}`);
+  console.log(`  ${chalk.yellow('--top-p')}               ${chalk.white('Top-p sampling (0.0-1.0)')}`);
   
   console.log(chalk.bold.cyan('\n📊 Examples:'));
   console.log(`  ${chalk.gray('# List all models')}`);
@@ -199,6 +327,8 @@ function showHelp() {
   console.log(`  ${chalk.white('ollama-sdk generate -m llama2 -p "Tell me about AI" -s')}`);
   console.log(`  ${chalk.gray('# Create embeddings')}`);
   console.log(`  ${chalk.white('ollama-sdk embed -m llama2 -p "Semantic text representation"')}`);
+  console.log(`  ${chalk.gray('# Pull a new model')}`);
+  console.log(`  ${chalk.white('ollama-sdk pull -m mistral')}`);
   console.log();
 }
 

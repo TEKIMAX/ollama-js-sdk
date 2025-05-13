@@ -118,10 +118,22 @@ const similarity = client.embeddings.calculateSimilarity(embedding1, embedding2)
 
 ## Command Line Interface
 
-The SDK includes a CLI for common operations:
+The SDK includes a CLI for common operations. Access it via `npx @tekimax/ollama-sdk` or by installing it globally.
+
+### Global Installation
 
 ```bash
-# List models
+# Install globally
+npm install -g @tekimax/ollama-sdk
+
+# Now you can use it directly
+ollama-sdk help
+```
+
+### Basic Commands
+
+```bash
+# List all available models
 npx @tekimax/ollama-sdk list
 
 # Generate text
@@ -129,6 +141,56 @@ npx @tekimax/ollama-sdk generate --model llama2 --prompt "Hello AI" --stream
 
 # Create embeddings
 npx @tekimax/ollama-sdk embed --model llama2 --prompt "Vector representation"
+```
+
+### Working with Models
+
+```bash
+# List available models with size information
+npx @tekimax/ollama-sdk list
+
+# Pull a new model (e.g., mistral)
+npx @tekimax/ollama-sdk pull --model mistral
+
+# Pull a specific model version
+npx @tekimax/ollama-sdk pull --model codellama:7b-instruct
+
+# Check if a model exists 
+npx @tekimax/ollama-sdk show --model llama2
+
+# Remove a model
+npx @tekimax/ollama-sdk remove --model unused-model
+```
+
+### Text Generation Examples
+
+```bash
+# Basic text generation
+npx @tekimax/ollama-sdk generate --model llama2 --prompt "Write a short poem about AI"
+
+# Stream the response for better UX
+npx @tekimax/ollama-sdk generate --model llama2 --prompt "Explain TypeScript to a beginner" --stream
+
+# Using a different model
+npx @tekimax/ollama-sdk generate --model mistral --prompt "What is quantum computing?"
+
+# Adjust generation parameters
+npx @tekimax/ollama-sdk generate --model llama2 --prompt "Create a story" --temperature 0.7 --top-p 0.9
+```
+
+### Advanced Usage
+
+```bash
+# Connect to a remote Ollama server
+npx @tekimax/ollama-sdk list --host http://my-ollama-server:11434
+
+# Save generated text to a file
+npx @tekimax/ollama-sdk generate --model llama2 --prompt "Write an essay" > essay.txt
+
+# Process multiple prompts from a file
+cat prompts.txt | while read prompt; do
+  npx @tekimax/ollama-sdk generate --model llama2 --prompt "$prompt"
+done > responses.txt
 ```
 
 ## Contributing
