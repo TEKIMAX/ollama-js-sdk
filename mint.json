@@ -1,0 +1,85 @@
+{
+  "name": "Ollama SDK",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "theme": "venus",
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/TEKIMAX/ollama-js-sdk"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/docs/getting-started"
+  },
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "rectangle-terminal",
+      "url": "docs/api"
+    },
+    {
+      "name": "Examples",
+      "icon": "code",
+      "url": "docs/examples"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/TEKIMAX/ollama-js-sdk"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "docs/getting-started",
+        "docs/installation",
+        "docs/quickstart"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "docs/api/overview",
+        "docs/api/client",
+        "docs/api/models",
+        "docs/api/embeddings",
+        "docs/api/tools"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "docs/guides/basic-usage",
+        "docs/guides/streaming",
+        "docs/guides/tool-calling",
+        "docs/guides/advanced-usage"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "docs/examples/chat",
+        "docs/examples/semantic-search",
+        "docs/examples/tool-example"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/TEKIMAX/ollama-js-sdk"
+  }
+} 
