@@ -2,15 +2,15 @@
 // CLI interface for Tekimax Ollama SDK
 
 import { OllamaClient } from './client/OllamaClient';
-import { StreamParser } from './util/StreamParser';
+import { StreamParser, StreamChunk } from './util/StreamParser';
 import chalk from 'chalk';
 import * as figlet from 'figlet';
 import ora from 'ora';
 import gradientString from 'gradient-string';
 import { createInterface } from 'node:readline';
 import { ToolCall } from './tools/ToolsManager';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -784,7 +784,7 @@ async function useTools(client: OllamaClient) {
     : 'You are a helpful assistant that can use tools to provide better answers.';
     
   const temperature = tempIndex >= 0 && args.length > tempIndex + 1 
-    ? parseFloat(args[tempIndex + 1])
+    ? Number.parseFloat(args[tempIndex + 1])
     : 0.7;
     
   const toolsFile = toolsFileIndex >= 0 && args.length > toolsFileIndex + 1 
@@ -808,7 +808,9 @@ async function useTools(client: OllamaClient) {
     const toolsData = fs.readFileSync(path.resolve(toolsFile), 'utf8');
     tools = JSON.parse(toolsData);
   } catch (error) {
-    console.log(chalk.red(`Error loading tools file: ${error.message}`));
+    // Handle the unknown error type safely
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.log(chalk.red(`Error loading tools file: ${errorMessage}`));
     process.exit(1);
   }
   
@@ -830,7 +832,7 @@ async function useTools(client: OllamaClient) {
       // Handle streaming response
       spinner.succeed(chalk.green('Started streaming response:'));
       
-      const stream = await client.tools.callWithToolsStream({
+      const streamResponse = await client.tools.callWithToolsStream({
         model,
         prompt,
         system,
@@ -844,14 +846,23 @@ async function useTools(client: OllamaClient) {
       let toolCalls: ToolCall[] = [];
       let lastResponse = '';
       
-      for await (const chunk of StreamParser.parse(stream)) {
-        if (chunk.message?.content) {
-          process.stdout.write(chunk.message.content);
-          lastResponse = chunk.message.content;
+      // Create a custom parser that handles the specific stream format
+      for await (const chunk of StreamParser.parse(streamResponse)) {
+        // Type assertion for the chunk to access message properties
+        const toolChunk = chunk as unknown as {
+          message?: {
+            content?: string;
+            tool_calls?: ToolCall[];
+          }
+        };
+        
+        if (toolChunk.message?.content) {
+          process.stdout.write(toolChunk.message.content);
+          lastResponse = toolChunk.message.content;
         }
         
-        if (chunk.message?.tool_calls) {
-          toolCalls = chunk.message.tool_calls;
+        if (toolChunk.message?.tool_calls) {
+          toolCalls = toolChunk.message.tool_calls;
         }
       }
       

@@ -5,7 +5,7 @@ export interface Tool {
   type: string;
   name: string;
   description: string;
-  parameters?: any;
+  parameters?: Record<string, unknown>;
 }
 
 // Tool response interface
@@ -13,7 +13,7 @@ export interface ToolCall {
   id: string;
   type: string;
   name: string; 
-  input: Record<string, any>;
+  input: Record<string, unknown>;
 }
 
 // Tool calling request options
@@ -75,7 +75,7 @@ export class ToolsManager {
   /**
    * Call a model with specified tools and stream the response
    */
-  async callWithToolsStream(options: ToolCallingRequest): Promise<ReadableStream<ToolCallingResponse>> {
+  async callWithToolsStream(options: ToolCallingRequest): Promise<Response> {
     if (!options.stream) {
       options.stream = true;
     }
@@ -87,13 +87,11 @@ export class ToolsManager {
       ...options
     };
     
-    const response = await this.client.makeRequest(endpoint, {
+    // Return the raw response for parsing with StreamParser
+    return await this.client.makeRequest(endpoint, {
       method: 'POST',
       body: JSON.stringify(requestBody)
     });
-    
-    // Return the readable stream for parsing
-    return response.body as ReadableStream<ToolCallingResponse>;
   }
   
   /**
@@ -102,7 +100,7 @@ export class ToolsManager {
   async executeToolCalls(
     options: ToolCallingRequest, 
     toolCalls: ToolCall[], 
-    toolResponses: Record<string, any>[]
+    toolResponses: Record<string, unknown>[]
   ): Promise<ToolCallingResponse> {
     const endpoint = '/api/tool/response';
     
