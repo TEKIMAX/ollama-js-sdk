@@ -9,11 +9,7 @@
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
-    "dark": "#0D9373",
-    "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
-    }
+    "dark": "#0D9373"
   },
   "theme": "mint",
   "topbarLinks": [
@@ -43,43 +39,24 @@
       "url": "https://github.com/TEKIMAX/ollama-js-sdk"
     }
   ],
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "docs/getting-started",
-        "docs/installation",
-        "docs/quickstart"
-      ]
+  "navigation": {
+    "getting-started": {
+      "title": "Getting Started",
+      "pages": ["docs/getting-started", "docs/installation", "docs/quickstart"]
     },
-    {
-      "group": "API Reference",
-      "pages": [
-        "docs/api/overview",
-        "docs/api/client",
-        "docs/api/models",
-        "docs/api/embeddings",
-        "docs/api/tools"
-      ]
+    "api-reference": {
+      "title": "API Reference",
+      "pages": ["docs/api/overview", "docs/api/client", "docs/api/models", "docs/api/embeddings", "docs/api/tools"]
     },
-    {
-      "group": "Guides",
-      "pages": [
-        "docs/guides/basic-usage",
-        "docs/guides/streaming",
-        "docs/guides/tool-calling",
-        "docs/guides/advanced-usage"
-      ]
+    "guides": {
+      "title": "Guides",
+      "pages": ["docs/guides/basic-usage", "docs/guides/streaming", "docs/guides/tool-calling", "docs/guides/advanced-usage"]
     },
-    {
-      "group": "Examples",
-      "pages": [
-        "docs/examples/chat",
-        "docs/examples/semantic-search",
-        "docs/examples/tool-example"
-      ]
+    "examples": {
+      "title": "Examples",
+      "pages": ["docs/examples/chat", "docs/examples/semantic-search", "docs/examples/tool-example"]
     }
-  ],
+  },
   "footerSocials": {
     "github": "https://github.com/TEKIMAX/ollama-js-sdk"
   }
