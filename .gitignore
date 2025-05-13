@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+coverage/
+*.tgz
+
+# Environment variables
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/
+*.sublime-*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Exclude everything outside the SDK
+/TEKIMAX_O*
+/ollama-js-sdk/ 

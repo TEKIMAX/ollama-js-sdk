@@ -1,0 +1,52 @@
+{
+  "name": "@tekimax/ollama-sdk",
+  "version": "1.0.5",
+  "description": "TypeScript SDK for Ollama API by Tekimax",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ollama-sdk": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js"
+  },
+  "keywords": [
+    "ollama",
+    "sdk",
+    "llm",
+    "ai",
+    "machine learning",
+    "embeddings",
+    "fine-tuning",
+    "typescript",
+    "tekimax",
+    "education"
+  ],
+  "author": "Tekimax LLC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TEKIMAX/ollama-js-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TEKIMAX/ollama-js-sdk/issues"
+  },
+  "homepage": "https://github.com/TEKIMAX/ollama-js-sdk#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "disclaimer": "This SDK is not affiliated with or endorsed by Ollama. It is an independent project developed by Tekimax LLC for educational purposes."
+}
