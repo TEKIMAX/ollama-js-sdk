@@ -1,4 +1,5 @@
 {
+  "$schema": "https://mintlify.com/docs.json",
   "name": "Ollama SDK",
   "logo": {
     "light": "/logo/light.png",
@@ -14,6 +15,7 @@
       "to": "#07C983"
     }
   },
+  "theme": "mint",
   "topbarLinks": [
     {
       "name": "GitHub",
@@ -28,12 +30,12 @@
     {
       "name": "API Reference",
       "icon": "rectangle-terminal",
-      "url": "api"
+      "url": "docs/api"
     },
     {
       "name": "Examples",
       "icon": "code",
-      "url": "examples"
+      "url": "docs/examples"
     },
     {
       "name": "GitHub",
