@@ -2,6 +2,18 @@
 
 All notable changes to @tekimax/ollama-sdk will be documented in this file.
 
+## [1.2.0] - 2025-05-17
+
+### Added
+- Interactive tutorial command (`tutorial`) for guided learning experience
+- Step-by-step walkthrough of basic SDK features
+- User input prompts for customized tutorial experience
+
+### Fixed
+- Ensured ASCII art banner is consistently displayed for all commands
+- Improved error handling in CLI functions
+- Better command parsing and feedback
+
 ## [1.1.0] - 2025-05-16
 
 ### Added

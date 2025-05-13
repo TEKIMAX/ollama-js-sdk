@@ -18,6 +18,7 @@
 🔄 Streaming response support  
 📊 Built-in embedding and vector operations  
 💻 Command-line interface included  
+🎓 Interactive tutorial mode for beginners  
 
 ## Installation
 
@@ -141,7 +142,26 @@ npx @tekimax/ollama-sdk generate --model llama2 --prompt "Hello AI" --stream
 
 # Create embeddings
 npx @tekimax/ollama-sdk embed --model llama2 --prompt "Vector representation"
+
+# Run the interactive tutorial
+npx @tekimax/ollama-sdk tutorial
 ```
+
+### Interactive Tutorial
+
+For beginners, the CLI provides an interactive tutorial mode that guides you through the basic features:
+
+```bash
+npx @tekimax/ollama-sdk tutorial
+```
+
+The tutorial:
+- Walks you through listing models, generating text, and creating embeddings
+- Provides step-by-step instructions with explanations
+- Allows you to experiment with different models and parameters
+- Shows sample commands to try on your own after the tutorial
+
+This is the perfect way to get started with both Ollama and this SDK if you're new to large language models.
 
 ### Working with Models
 

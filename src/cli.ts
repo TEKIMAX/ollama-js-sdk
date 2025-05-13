@@ -7,6 +7,7 @@ import chalk from 'chalk';
 import * as figlet from 'figlet';
 import ora from 'ora';
 import gradientString from 'gradient-string';
+import { createInterface } from 'node:readline';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -30,6 +31,9 @@ function displayBanner() {
 }
 
 async function main() {
+  // Always display banner at the start
+  displayBanner();
+  
   // Initialize client with default or provided host
   const hostIndex = args.findIndex(arg => arg === '--host' || arg === '-h');
   const host = hostIndex >= 0 && args.length > hostIndex + 1 
@@ -37,11 +41,6 @@ async function main() {
     : 'http://localhost:11434';
   
   const client = new OllamaClient({ baseUrl: host });
-
-  // Show banner for help or no command
-  if (!command || command === 'help') {
-    displayBanner();
-  }
   
   try {
     switch (command) {
@@ -63,7 +62,15 @@ async function main() {
       case 'remove':
         await removeModel(client);
         break;
+      case 'tutorial':
+        await runInteractiveTutorial(client);
+        break;
+      case 'help':
+      case undefined:
+        showHelp();
+        break;
       default:
+        console.log(chalk.yellow(`Unknown command: ${command}`));
         showHelp();
         break;
     }
@@ -71,6 +78,104 @@ async function main() {
     console.error(chalk.red('❌ Error:'), error);
     process.exit(1);
   }
+}
+
+async function runInteractiveTutorial(client: OllamaClient) {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  const question = (query: string): Promise<string> => new Promise(resolve => rl.question(query, resolve));
+  
+  console.log(chalk.bold.cyan('\n📚 Interactive Tutorial Started!'));
+  console.log(chalk.yellow('This tutorial will guide you through the basic features of the Ollama SDK CLI.\n'));
+  
+  // Step 1: List available models
+  console.log(chalk.bold.green('Step 1: List Available Models'));
+  console.log(chalk.white('Let\'s first check which models are available on your Ollama instance.'));
+  await question(chalk.cyan('Press Enter to list models...'));
+  
+  try {
+    console.log(chalk.gray('\nRunning: ollama-sdk list\n'));
+    await listModels(client);
+  } catch (error) {
+    console.log(chalk.red('Failed to list models. Make sure Ollama is running locally.'));
+    console.log(chalk.yellow('Let\'s continue with the tutorial anyway.\n'));
+  }
+  
+  // Step 2: Generate text
+  console.log(chalk.bold.green('\nStep 2: Generate Text with a Model'));
+  console.log(chalk.white('Now let\'s generate some text using one of the available models.'));
+  const modelName = await question(chalk.cyan('Enter model name (default: llama2): ')) || 'llama2';
+  const prompt = await question(chalk.cyan('Enter a prompt (default: "Tell me about AI in 3 sentences"): ')) || 'Tell me about AI in 3 sentences';
+  const stream = (await question(chalk.cyan('Stream the response? (y/N): '))).toLowerCase() === 'y';
+  
+  console.log(chalk.gray(`\nRunning: ollama-sdk generate -m ${modelName} -p "${prompt}"${stream ? ' -s' : ''}\n`));
+  
+  try {
+    await client.models.generate({
+      model: modelName,
+      prompt,
+      stream,
+      temperature: 0.7,
+    }).then(async (response: any) => {
+      if (stream) {
+        console.log(chalk.bgBlue.white(' STREAMING RESPONSE '));
+        console.log(chalk.cyan(`┌${'─'.repeat(60)}┐`));
+        
+        for await (const chunk of StreamParser.parse(response)) {
+          process.stdout.write(chunk.response || '');
+        }
+        
+        console.log(`\n${chalk.cyan(`└${'─'.repeat(60)}┘`)}`);
+      } else {
+        console.log(chalk.bgBlue.white(' RESPONSE '));
+        console.log(chalk.cyan(`┌${'─'.repeat(60)}┐`));
+        console.log(response.response);
+        console.log(chalk.cyan(`└${'─'.repeat(60)}┘`));
+      }
+    });
+  } catch (error) {
+    console.log(chalk.red('Failed to generate text.'));
+    console.log(chalk.yellow('Let\'s continue with the tutorial anyway.\n'));
+  }
+  
+  // Step 3: Create embeddings
+  console.log(chalk.bold.green('\nStep 3: Create Embeddings'));
+  console.log(chalk.white('Let\'s create vector embeddings for a text using a model.'));
+  const embedModel = await question(chalk.cyan('Enter model name for embeddings (default: llama2): ')) || 'llama2';
+  const embedText = await question(chalk.cyan('Enter text to embed (default: "This is a sample text for semantic analysis"): ')) || 'This is a sample text for semantic analysis';
+  
+  console.log(chalk.gray(`\nRunning: ollama-sdk embed -m ${embedModel} -p "${embedText}"\n`));
+  
+  try {
+    const embedding = await client.embeddings.create({
+      model: embedModel,
+      prompt: embedText
+    });
+    
+    console.log(chalk.bold.cyan(`\n📊 Embedding (${embedding.embedding.length} dimensions):`));
+    console.log(chalk.gray('First 5 values:'), 
+      chalk.yellow(`[${embedding.embedding.slice(0, 5).map((v: number) => v.toFixed(6)).join(', ')}...]`));
+  } catch (error) {
+    console.log(chalk.red('Failed to create embeddings.'));
+  }
+  
+  // Conclusion
+  console.log(chalk.bold.green('\n🎓 Tutorial Completed!'));
+  console.log(chalk.white('You\'ve learned the basic functionality of the Ollama SDK CLI:'));
+  console.log(chalk.yellow('  • Listing available models'));
+  console.log(chalk.yellow('  • Generating text with a model'));
+  console.log(chalk.yellow('  • Creating text embeddings'));
+  
+  console.log(chalk.bold.cyan('\nAdvanced Features:'));
+  console.log(chalk.white('Try these commands on your own:'));
+  console.log(chalk.yellow('  • ollama-sdk pull -m mistral     (Pull a new model)'));
+  console.log(chalk.yellow('  • ollama-sdk show -m llama2      (Show model details)'));
+  console.log(chalk.yellow('  • ollama-sdk generate -m llama2 -p "Your prompt" -t 0.7   (Set temperature)'));
+  
+  rl.close();
 }
 
 async function listModels(client: OllamaClient) {
@@ -310,6 +415,7 @@ function showHelp() {
   console.log(`  ${chalk.green('pull')}                   ${chalk.white('Pull a new model')}`);
   console.log(`  ${chalk.green('show')}                   ${chalk.white('Show information about a model')}`);
   console.log(`  ${chalk.green('remove')}                 ${chalk.white('Remove a model')}`);
+  console.log(`  ${chalk.green('tutorial')}               ${chalk.white('Run interactive tutorial')}`);
   console.log(`  ${chalk.green('help')}                   ${chalk.white('Show this help message')}`);
   
   console.log(chalk.bold.cyan('\n🔧 Options:'));
