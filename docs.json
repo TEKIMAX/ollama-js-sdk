@@ -40,22 +40,43 @@
     }
   ],
   "navigation": {
-    "getting-started": {
-      "title": "Getting Started",
-      "pages": ["docs/getting-started", "docs/installation", "docs/quickstart"]
-    },
-    "api-reference": {
-      "title": "API Reference",
-      "pages": ["docs/api/overview", "docs/api/client", "docs/api/models", "docs/api/embeddings", "docs/api/tools"]
-    },
-    "guides": {
-      "title": "Guides",
-      "pages": ["docs/guides/basic-usage", "docs/guides/streaming", "docs/guides/tool-calling", "docs/guides/advanced-usage"]
-    },
-    "examples": {
-      "title": "Examples",
-      "pages": ["docs/examples/chat", "docs/examples/semantic-search", "docs/examples/tool-example"]
-    }
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "docs/getting-started",
+          "docs/installation",
+          "docs/quickstart"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "docs/api/overview",
+          "docs/api/client",
+          "docs/api/models",
+          "docs/api/embeddings", 
+          "docs/api/tools"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "docs/guides/basic-usage",
+          "docs/guides/streaming",
+          "docs/guides/tool-calling",
+          "docs/guides/advanced-usage"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "docs/examples/chat",
+          "docs/examples/semantic-search",
+          "docs/examples/tool-example"
+        ]
+      }
+    ]
   },
   "footerSocials": {
     "github": "https://github.com/TEKIMAX/ollama-js-sdk"
