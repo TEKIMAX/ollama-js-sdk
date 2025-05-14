@@ -32,7 +32,7 @@
     }
   ],
   "metadata": {
-    "description": "An educational TypeScript SDK for working with Large Language Models, created for workshops and AI literacy initiatives. Currently supports Ollama API with plans to add Claude, Gemini and other models."
+    "description": "An educational TypeScript SDK for working with Large Language Models, created for workshops and AI literacy initiatives. Currently supports Ollama API with plans to add OpenAI, Claude, Gemini, Meta, Mistral and other LLM providers."
   },
   "anchors": [
     {

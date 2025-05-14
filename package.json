@@ -62,5 +62,5 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "disclaimer": "This SDK is an educational tool developed by Tekimax LLC. While it currently interfaces with Ollama API, this SDK is not affiliated with or endorsed by Ollama."
+  "disclaimer": "This SDK is an educational tool developed by Tekimax LLC. It is not affiliated with or endorsed by any Large Language Model provider. We are seeking partnerships to enhance AI literacy initiatives."
 }

@@ -12,14 +12,18 @@
 
 ## Disclaimer
 
-**This SDK is not affiliated with or endorsed by Ollama.** The `tekimax-sdk` was created independently to support educational workshops and promote AI literacy. It is designed primarily for teaching purposes, workshops, and helping developers learn about AI and LLM technology.
+**This SDK is not affiliated with or endorsed by any Large Language Model provider.** The `tekimax-sdk` was created independently to support educational workshops and promote AI literacy. It is designed primarily for teaching purposes, workshops, and helping developers learn about AI and LLM technology. We are actively looking for partnerships and collaborations to make this SDK more robust for AI literacy initiatives.
 
 ## About This SDK
 
 The Tekimax SDK is a versatile toolkit for working with Large Language Models. Currently, it interfaces with Ollama API for local model execution, but we have plans to expand support for:
 
-- Claude by Anthropic
+- OpenAI models
+- Claude by Anthropic 
 - Gemini by Google
+- Meta's Llama models
+- Mistral AI
+- Cohere
 - Other leading LLM providers
 
 This makes it ideal for educational environments where flexibility and vendor independence are important.
