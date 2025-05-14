@@ -1,10 +1,10 @@
-# @tekimax/ollama-sdk
+# tekimax-sdk
 
-![npm](https://img.shields.io/npm/v/@tekimax/ollama-sdk)
-![License](https://img.shields.io/npm/l/@tekimax/ollama-sdk)
+![npm](https://img.shields.io/npm/v/tekimax-sdk)
+![License](https://img.shields.io/npm/l/tekimax-sdk)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.9%2B-blue)
 
-> A modern TypeScript SDK for interacting with Ollama API
+> A modern TypeScript SDK for working with Large Language Models
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/TEKIMAX/ollama-js-sdk/main/assets/tekimax-logo.png" alt="Tekimax Logo" width="300"/>
@@ -12,7 +12,17 @@
 
 ## Disclaimer
 
-**This SDK is not affiliated with or endorsed by Ollama.** The `@tekimax/ollama-sdk` was created independently to support educational workshops and promote AI literacy. It is designed primarily for teaching purposes, workshops, and helping developers learn about AI and LLM technology.
+**This SDK is not affiliated with or endorsed by Ollama.** The `tekimax-sdk` was created independently to support educational workshops and promote AI literacy. It is designed primarily for teaching purposes, workshops, and helping developers learn about AI and LLM technology.
+
+## About This SDK
+
+The Tekimax SDK is a versatile toolkit for working with Large Language Models. Currently, it interfaces with Ollama API for local model execution, but we have plans to expand support for:
+
+- Claude by Anthropic
+- Gemini by Google
+- Other leading LLM providers
+
+This makes it ideal for educational environments where flexibility and vendor independence are important.
 
 ## Features
 
@@ -37,24 +47,24 @@ This SDK was created with the following goals:
 
 ```bash
 # Using npm
-npm install @tekimax/ollama-sdk
+npm install tekimax-sdk
 
 # Using yarn
-yarn add @tekimax/ollama-sdk
+yarn add tekimax-sdk
 
 # Using pnpm
-pnpm add @tekimax/ollama-sdk
+pnpm add tekimax-sdk
 
 # Using bun (recommended)
-bun add @tekimax/ollama-sdk
+bun add tekimax-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { OllamaClient } from '@tekimax/ollama-sdk';
+import { OllamaClient } from 'tekimax-sdk';
 
-// Initialize client
+// Initialize client (currently using Ollama API)
 const client = new OllamaClient({
   baseUrl: 'http://localhost:11434' // Default Ollama server URL
 });
@@ -138,10 +148,10 @@ The SDK includes a CLI for common operations. Access it via `npx @tekimax/ollama
 
 ```bash
 # Install globally
-npm install -g @tekimax/ollama-sdk
+npm install -g tekimax-sdk
 
 # Now you can use it directly
-ollama-sdk help
+tekimax-sdk help
 ```
 
 ### Complete Command Reference
@@ -153,7 +163,7 @@ The CLI provides the following commands:
 Lists all models currently available in your local Ollama instance.
 
 ```bash
-npx @tekimax/ollama-sdk list [options]
+npx tekimax-sdk list [options]
 ```
 
 Options:
@@ -161,8 +171,8 @@ Options:
 
 Example:
 ```bash
-npx @tekimax/ollama-sdk list
-npx @tekimax/ollama-sdk list --host http://remote-ollama:11434
+npx tekimax-sdk list
+npx tekimax-sdk list --host http://remote-ollama:11434
 ```
 
 #### `generate` - Generate text from a prompt
@@ -170,7 +180,7 @@ npx @tekimax/ollama-sdk list --host http://remote-ollama:11434
 Generate text from a prompt using a specified model.
 
 ```bash
-npx @tekimax/ollama-sdk generate [options]
+npx tekimax-sdk generate [options]
 ```
 
 Options:
@@ -183,8 +193,8 @@ Options:
 
 Example:
 ```bash
-npx @tekimax/ollama-sdk generate --model llama2 --prompt "Write a short story" --stream
-npx @tekimax/ollama-sdk generate -m mistral -p "Explain quantum computing" -s -t 0.7
+npx tekimax-sdk generate --model llama2 --prompt "Write a short story" --stream
+npx tekimax-sdk generate -m mistral -p "Explain quantum computing" -s -t 0.7
 ```
 
 #### `embed` - Create embeddings from text
@@ -192,7 +202,7 @@ npx @tekimax/ollama-sdk generate -m mistral -p "Explain quantum computing" -s -t
 Create vector embeddings from input text.
 
 ```bash
-npx @tekimax/ollama-sdk embed [options]
+npx tekimax-sdk embed [options]
 ```
 
 Options:
@@ -202,7 +212,7 @@ Options:
 
 Example:
 ```bash
-npx @tekimax/ollama-sdk embed --model nomic-embed-text --prompt "Semantic representation"
+npx tekimax-sdk embed --model nomic-embed-text --prompt "Semantic representation"
 ```
 
 #### `pull` - Pull a new model
@@ -210,7 +220,7 @@ npx @tekimax/ollama-sdk embed --model nomic-embed-text --prompt "Semantic repres
 Download a model from Ollama's model library.
 
 ```bash
-npx @tekimax/ollama-sdk pull [options]
+npx tekimax-sdk pull [options]
 ```
 
 Options:

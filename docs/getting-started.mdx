@@ -1,15 +1,15 @@
 ---
-title: 'Getting Started with Ollama SDK'
-description: 'Learn how to use the TypeScript/JavaScript SDK for Ollama'
+title: 'Getting Started with Tekimax SDK'
+description: 'Learn how to use the TypeScript/JavaScript SDK for Large Language Models'
 ---
 
-# Getting Started with Ollama SDK
+# Getting Started with Tekimax SDK
 
 <Note>
-  **Disclaimer:** This SDK is not affiliated with or endorsed by Ollama. The `@tekimax/ollama-sdk` was created independently to support educational workshops and promote AI literacy.
+  **Disclaimer:** This SDK is not affiliated with or endorsed by Ollama. The `tekimax-sdk` was created independently to support educational workshops and promote AI literacy.
 </Note>
 
-The `@tekimax/ollama-sdk` is a comprehensive TypeScript/JavaScript SDK for interacting with Ollama, an API for running large language models locally. We created this SDK specifically to simplify LLM integration for workshops, tutorials, and educational purposes.
+The `tekimax-sdk` is a comprehensive TypeScript/JavaScript SDK for working with Large Language Models. Currently, it interfaces with Ollama API for local model execution, but we have plans to expand support for other providers like Claude and Gemini. We created this SDK specifically to simplify LLM integration for workshops, tutorials, and educational purposes.
 
 ## Why We Built This SDK
 
@@ -18,12 +18,22 @@ This SDK was designed with education in mind:
 - **Simplified LLM Integration**: Makes working with large language models accessible for developers of all experience levels
 - **Workshop-Ready**: Includes ready-to-use examples and exercises for LLM workshops
 - **Interactive Tutorials**: Comes with interactive tutorials to help you learn LLM concepts
-- **Local First**: Focuses on running models locally with Ollama for privacy and learning
+- **Local First**: Currently focuses on running models locally with Ollama for privacy and learning
 - **AI Literacy**: Helps developers better understand LLM capabilities and limitations
+- **Provider Flexibility**: Future-proofed to work with multiple LLM providers
 
-## What is Ollama?
+## Current API Support
 
-[Ollama](https://ollama.ai) lets you run open-source large language models, such as Llama 2, locally on your machine. This gives you the power of AI models without sending your data to external APIs.
+Currently, the SDK interfaces with [Ollama](https://ollama.ai), which lets you run open-source large language models, such as Llama 2, locally on your machine. This gives you the power of AI models without sending your data to external APIs.
+
+## Future Support (Coming Soon)
+
+We're actively developing connectors for:
+- **Claude by Anthropic**
+- **Gemini by Google**
+- **Other Leading LLM Providers**
+
+This will make the SDK even more versatile for educational environments.
 
 ## Educational Purpose
 
@@ -31,11 +41,11 @@ This SDK is designed primarily for:
 - Educational workshops on LLM technology
 - Classroom instruction on AI capabilities
 - Developer training and skill enhancement
-- Research and experimentation with local models
+- Research and experimentation with models
 
 ## What can you do with this SDK?
 
-With the Ollama SDK, you can:
+With the Tekimax SDK, you can:
 
 - Generate text responses from prompts
 - Stream responses in real-time
@@ -56,7 +66,7 @@ This SDK includes:
 ## Requirements
 
 - **Node.js**: v16.0.0 or higher
-- **Ollama**: Running locally or on a remote server
+- **Ollama**: Running locally or on a remote server (for Ollama API usage)
 - **TypeScript** (optional): For type safety
 
 ## Installation
@@ -65,13 +75,13 @@ You can install the SDK using npm, yarn, or pnpm:
 
 ```bash
 # Using npm
-npm install @tekimax/ollama-sdk
+npm install tekimax-sdk
 
 # Using yarn
-yarn add @tekimax/ollama-sdk
+yarn add tekimax-sdk
 
 # Using pnpm
-pnpm add @tekimax/ollama-sdk
+pnpm add tekimax-sdk
 ```
 
 ## Quick Example
@@ -79,11 +89,13 @@ pnpm add @tekimax/ollama-sdk
 Here's a simple example to get you started:
 
 ```javascript
-import { OllamaClient } from '@tekimax/ollama-sdk';
+import { OllamaClient } from 'tekimax-sdk';
 
 async function main() {
-  // Initialize the client (default: http://localhost:11434)
-  const ollama = new OllamaClient();
+  // Initialize the client (currently using Ollama API)
+  const ollama = new OllamaClient({
+    baseUrl: 'http://localhost:11434' // Default Ollama server URL
+  });
   
   // Generate text with a model
   const response = await ollama.generate({

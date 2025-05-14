@@ -1,5 +1,5 @@
 {
-  "name": "Ollama SDK",
+  "name": "Tekimax SDK",
   "logo": {
     "light": "/logo.png",
     "dark": "/logo.png"
@@ -18,7 +18,7 @@
   "topbarLinks": [
     {
       "name": "GitHub",
-      "url": "https://github.com/TEKIMAX/ollama-js-sdk"
+      "url": "https://github.com/TEKIMAX/tekimax-sdk"
     }
   ],
   "topbarCtaButton": {
@@ -32,7 +32,7 @@
     }
   ],
   "metadata": {
-    "description": "An educational TypeScript SDK for working with Ollama LLMs, created for workshops and AI literacy initiatives. Not affiliated with Ollama."
+    "description": "An educational TypeScript SDK for working with Large Language Models, created for workshops and AI literacy initiatives. Currently supports Ollama API with plans to add Claude, Gemini and other models."
   },
   "anchors": [
     {
@@ -48,7 +48,7 @@
     {
       "name": "GitHub",
       "icon": "github",
-      "url": "https://github.com/TEKIMAX/ollama-js-sdk"
+      "url": "https://github.com/TEKIMAX/tekimax-sdk"
     }
   ],
   "navigation": [
@@ -89,6 +89,6 @@
     }
   ],
   "footerSocials": {
-    "github": "https://github.com/TEKIMAX/ollama-js-sdk"
+    "github": "https://github.com/TEKIMAX/tekimax-sdk"
   }
 } 

@@ -1,6 +1,6 @@
 ---
 title: 'Installation'
-description: 'How to install and set up the Ollama SDK in your project'
+description: 'How to install and set up the Tekimax SDK in your project'
 ---
 
 
@@ -14,20 +14,20 @@ Before installing the SDK, make sure you have:
 
 ## Installing the SDK
 
-You can install the Ollama SDK using your preferred package manager:
+You can install the Tekimax SDK using your preferred package manager:
 
 <CodeGroup>
 
 ```bash npm
-npm install @tekimax/ollama-sdk
+npm install tekimax-sdk
 ```
 
 ```bash yarn
-yarn add @tekimax/ollama-sdk
+yarn add tekimax-sdk
 ```
 
 ```bash pnpm
-pnpm add @tekimax/ollama-sdk
+pnpm add tekimax-sdk
 ```
 
 </CodeGroup>
@@ -37,16 +37,16 @@ pnpm add @tekimax/ollama-sdk
 To verify that the SDK has been installed correctly, you can create a simple test script:
 
 ```javascript
-// test-ollama.js
-const { OllamaKit } = require('@tekimax/ollama-sdk');
+// test-sdk.js
+const { OllamaClient } = require('tekimax-sdk');
 
 async function testConnection() {
-  const ollama = new OllamaKit();
+  const client = new OllamaClient();
   
   try {
-    const models = await ollama.listModels();
+    const models = await client.models.list();
     console.log('Available models:', models.models.map(m => m.name));
-    console.log('Ollama SDK is connected successfully!');
+    console.log('Tekimax SDK is connected successfully!');
   } catch (error) {
     console.error('Failed to connect to Ollama:', error.message);
     console.log('Make sure Ollama is running on your machine');
@@ -59,7 +59,7 @@ testConnection();
 Run the script using Node.js:
 
 ```bash
-node test-ollama.js
+node test-sdk.js
 ```
 
 If Ollama is running and the SDK is installed correctly, you should see a list of available models.
@@ -69,13 +69,13 @@ If Ollama is running and the SDK is installed correctly, you should see a list o
 The SDK also comes with a command-line interface (CLI) that you can install globally:
 
 ```bash
-npm install -g @tekimax/ollama-sdk
+npm install -g tekimax-sdk
 ```
 
-Once installed, you can use the CLI to interact with Ollama directly from your terminal:
+Once installed, you can use the CLI to interact with LLMs directly from your terminal:
 
 ```bash
-ollama-sdk list
+tekimax-sdk list
 ```
 
 This command lists all available models in your Ollama installation.
@@ -85,9 +85,9 @@ This command lists all available models in your Ollama installation.
 By default, the SDK connects to Ollama at `http://localhost:11434`. If you're running Ollama on a different host or port, you can configure the SDK:
 
 ```javascript
-const { OllamaKit } = require('@tekimax/ollama-sdk');
+const { OllamaClient } = require('tekimax-sdk');
 
-const ollama = new OllamaKit({
+const client = new OllamaClient({
   baseUrl: 'http://your-ollama-host:11434' // Replace with your Ollama host
 });
 ```
@@ -100,8 +100,17 @@ If you encounter issues during installation or connection:
 2. **Connection refused**: Check if the Ollama server is accessible at the specified URL
 3. **Version compatibility**: Make sure you're using a compatible version of Ollama with this SDK
 
-For more details, see the [Troubleshooting Guide](/docs/guides/troubleshooting) or open an issue on our [GitHub repository](https://github.com/TEKIMAX/ollama-js-sdk).
+For more details, see the [Troubleshooting Guide](/docs/guides/troubleshooting) or open an issue on our [GitHub repository](https://github.com/TEKIMAX/tekimax-sdk).
+
+## Future Model Support
+
+While the SDK currently connects to Ollama's API, we are actively developing connectors for:
+- Claude by Anthropic
+- Gemini by Google
+- Other leading LLM providers
+
+These will be available in future releases.
 
 ## Next Steps
 
-Now that you've installed the Ollama SDK, check out the [Quick Start](/docs/quickstart) guide to learn how to use it in your applications. 
+Now that you've installed the Tekimax SDK, check out the [Quick Start](/docs/quickstart) guide to learn how to use it in your applications. 
