@@ -5,6 +5,10 @@ description: 'Learn how to use the TypeScript/JavaScript SDK for Ollama'
 
 # Getting Started with Ollama SDK
 
+<Note>
+  **Disclaimer:** This SDK is not affiliated with or endorsed by Ollama. The `@tekimax/ollama-sdk` was created independently to support educational workshops and promote AI literacy.
+</Note>
+
 The `@tekimax/ollama-sdk` is a comprehensive TypeScript/JavaScript SDK for interacting with Ollama, an API for running large language models locally. We created this SDK specifically to simplify LLM integration for workshops, tutorials, and educational purposes.
 
 ## Why We Built This SDK
@@ -15,10 +19,19 @@ This SDK was designed with education in mind:
 - **Workshop-Ready**: Includes ready-to-use examples and exercises for LLM workshops
 - **Interactive Tutorials**: Comes with interactive tutorials to help you learn LLM concepts
 - **Local First**: Focuses on running models locally with Ollama for privacy and learning
+- **AI Literacy**: Helps developers better understand LLM capabilities and limitations
 
 ## What is Ollama?
 
 [Ollama](https://ollama.ai) lets you run open-source large language models, such as Llama 2, locally on your machine. This gives you the power of AI models without sending your data to external APIs.
+
+## Educational Purpose
+
+This SDK is designed primarily for:
+- Educational workshops on LLM technology
+- Classroom instruction on AI capabilities
+- Developer training and skill enhancement
+- Research and experimentation with local models
 
 ## What can you do with this SDK?
 
@@ -66,11 +79,11 @@ pnpm add @tekimax/ollama-sdk
 Here's a simple example to get you started:
 
 ```javascript
-import { OllamaKit } from '@tekimax/ollama-sdk';
+import { OllamaClient } from '@tekimax/ollama-sdk';
 
 async function main() {
   // Initialize the client (default: http://localhost:11434)
-  const ollama = new OllamaKit();
+  const ollama = new OllamaClient();
   
   // Generate text with a model
   const response = await ollama.generate({

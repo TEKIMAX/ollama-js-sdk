@@ -25,6 +25,15 @@
     "name": "Get Started",
     "url": "/docs/getting-started"
   },
+  "tabs": [
+    {
+      "name": "Educational Resources",
+      "url": "docs/workshop"
+    }
+  ],
+  "metadata": {
+    "description": "An educational TypeScript SDK for working with Ollama LLMs, created for workshops and AI literacy initiatives. Not affiliated with Ollama."
+  },
   "anchors": [
     {
       "name": "API Reference",

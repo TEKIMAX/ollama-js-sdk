@@ -10,6 +10,10 @@
   <img src="https://raw.githubusercontent.com/TEKIMAX/ollama-js-sdk/main/assets/tekimax-logo.png" alt="Tekimax Logo" width="300"/>
 </div>
 
+## Disclaimer
+
+**This SDK is not affiliated with or endorsed by Ollama.** The `@tekimax/ollama-sdk` was created independently to support educational workshops and promote AI literacy. It is designed primarily for teaching purposes, workshops, and helping developers learn about AI and LLM technology.
+
 ## Features
 
 ✨ Full TypeScript support with complete type definitions  
@@ -19,6 +23,15 @@
 📊 Built-in embedding and vector operations  
 💻 Command-line interface included  
 🎓 Interactive tutorial mode for beginners  
+
+## Educational Purpose
+
+This SDK was created with the following goals:
+- Providing learning materials for AI workshops
+- Supporting classroom instruction on LLM capabilities
+- Helping developers gain hands-on experience with AI
+- Promoting AI literacy through practical examples
+- Facilitating research and experimentation with local models
 
 ## Installation
 
