@@ -78,6 +78,13 @@
       ]
     },
     {
+      "group": "Workshops & Tutorials",
+      "pages": [
+        "workshop-setup",
+        "workshop"
+      ]
+    },
+    {
       "group": "AI Academy",
       "pages": [
         "academy/overview",

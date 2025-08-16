@@ -1,0 +1,564 @@
+---
+title: 'Workshop Guide'
+description: 'Hands-on workshop for learning the Tekimax SDK'
+icon: 'chalkboard-teacher'
+---
+
+# Tekimax SDK Hands-On Workshop
+
+A comprehensive, hands-on introduction to the Tekimax SDK. Learn to work with GPT-OSS models through practical exercises and real-world projects.
+
+## Workshop Overview
+
+<CardGroup cols={2}>
+  <Card title="Duration" icon="clock">
+    4 hours (with breaks)
+  </Card>
+  <Card title="Level" icon="signal">
+    Beginner to Intermediate
+  </Card>
+  <Card title="Prerequisites" icon="check">
+    Basic JavaScript knowledge
+  </Card>
+  <Card title="Outcome" icon="trophy">
+    Build AI applications
+  </Card>
+</CardGroup>
+
+## Part 1: CLI Basics (45 min)
+
+Learn the command-line interface for quick interactions with models.
+
+### Getting Started
+
+<Steps>
+  <Step title="Install SDK">
+    ```bash
+    npm install -g tekimax-sdk
+    ```
+  </Step>
+  <Step title="Verify Installation">
+    ```bash
+    tekimax-sdk help
+    ```
+  </Step>
+  <Step title="Check Setup">
+    ```bash
+    tekimax-sdk setup
+    ```
+  </Step>
+</Steps>
+
+### Workshop Activity #1: Explore Models
+
+```bash
+# List available models
+tekimax-sdk list
+
+# If no models, pull one:
+ollama pull llama2:7b
+```
+
+**Tasks:**
+1. List your models
+2. Note model sizes
+3. Check which are GPT-OSS compatible
+
+### Workshop Activity #2: Text Generation
+
+<Tabs>
+  <Tab title="Basic">
+    ```bash
+    tekimax-sdk generate -p "Explain AI to a child"
+    ```
+  </Tab>
+  <Tab title="With Model">
+    ```bash
+    tekimax-sdk generate -m gpt-oss-20 -p "What is machine learning?"
+    ```
+  </Tab>
+  <Tab title="Creative">
+    ```bash
+    tekimax-sdk generate -p "Write a haiku about coding" -t 0.9
+    ```
+  </Tab>
+</Tabs>
+
+**Tasks:**
+1. Generate text with different prompts
+2. Try different temperature values
+3. Compare outputs
+
+### Workshop Activity #3: Parameters
+
+Experiment with generation parameters:
+
+```bash
+# Factual (low temperature)
+tekimax-sdk generate -p "List 3 facts about Python" -t 0.1
+
+# Balanced (default)
+tekimax-sdk generate -p "Explain databases" -t 0.7
+
+# Creative (high temperature)
+tekimax-sdk generate -p "Write a story opening" -t 0.9
+```
+
+**Observe:**
+- How temperature affects creativity
+- Response consistency
+- Output quality
+
+## Part 2: API Fundamentals (60 min)
+
+Work with the TypeScript/JavaScript API for programmatic control.
+
+### Setup Project
+
+<Steps>
+  <Step title="Create Project">
+    ```bash
+    mkdir workshop-project
+    cd workshop-project
+    npm init -y
+    ```
+  </Step>
+  <Step title="Install SDK">
+    ```bash
+    npm install tekimax-sdk
+    ```
+  </Step>
+  <Step title="Create File">
+    ```bash
+    touch index.js
+    ```
+  </Step>
+</Steps>
+
+### Workshop Activity #4: Basic API
+
+Create `index.js`:
+
+```javascript
+const { OllamaClient } = require('tekimax-sdk');
+
+async function main() {
+  const client = new OllamaClient();
+  
+  // Generate text
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt: 'What is JavaScript?',
+    temperature: 0.7
+  });
+  
+  console.log(response.response);
+}
+
+main().catch(console.error);
+```
+
+**Tasks:**
+1. Run the script
+2. Modify the prompt
+3. Try different models
+
+### Workshop Activity #5: Streaming
+
+Implement streaming for real-time output:
+
+```javascript
+const { OllamaClient, StreamParser } = require('tekimax-sdk');
+
+async function streamExample() {
+  const client = new OllamaClient();
+  
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt: 'Tell me a story about a robot',
+    stream: true
+  });
+  
+  for await (const chunk of StreamParser.parse(response)) {
+    process.stdout.write(chunk.response);
+  }
+}
+
+streamExample().catch(console.error);
+```
+
+**Observe:**
+- Text appears as generated
+- Better user experience
+- Memory efficiency
+
+### Workshop Activity #6: Embeddings
+
+Work with text embeddings:
+
+```javascript
+async function embeddingExample() {
+  const client = new OllamaClient();
+  
+  // Create embeddings
+  const texts = [
+    'Machine learning is fascinating',
+    'AI is changing the world',
+    'I love pizza'
+  ];
+  
+  const result = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: texts
+  });
+  
+  // Calculate similarities
+  const similarity01 = client.embeddings.calculateCosineSimilarity(
+    result.embeddings[0],
+    result.embeddings[1]
+  );
+  
+  const similarity02 = client.embeddings.calculateCosineSimilarity(
+    result.embeddings[0],
+    result.embeddings[2]
+  );
+  
+  console.log(`"${texts[0]}" vs "${texts[1]}": ${similarity01.toFixed(3)}`);
+  console.log(`"${texts[0]}" vs "${texts[2]}": ${similarity02.toFixed(3)}`);
+}
+```
+
+**Tasks:**
+1. Compare different text pairs
+2. Find semantic relationships
+3. Build a similarity matrix
+
+## Part 3: Advanced Topics (60 min)
+
+### Workshop Activity #7: Chat Interface
+
+Build an interactive chat:
+
+```javascript
+const readline = require('readline');
+const { OllamaClient } = require('tekimax-sdk');
+
+async function chatBot() {
+  const client = new OllamaClient();
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  console.log('ChatBot ready! Type "exit" to quit.\n');
+  
+  const context = [];
+  
+  while (true) {
+    const input = await new Promise(resolve => {
+      rl.question('You: ', resolve);
+    });
+    
+    if (input.toLowerCase() === 'exit') break;
+    
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: input,
+      system: 'You are a helpful assistant.',
+      context: context
+    });
+    
+    console.log(`Bot: ${response.response}\n`);
+    
+    // Update context for conversation memory
+    if (response.context) {
+      context.push(...response.context);
+    }
+  }
+  
+  rl.close();
+}
+
+chatBot();
+```
+
+### Workshop Activity #8: Semantic Search
+
+Build a document search system:
+
+```javascript
+async function semanticSearch() {
+  const client = new OllamaClient();
+  
+  // Sample documents
+  const documents = [
+    'Python is a high-level programming language.',
+    'JavaScript runs in web browsers.',
+    'Machine learning uses algorithms to learn from data.',
+    'Cats are independent pets.',
+    'Dogs are loyal companions.'
+  ];
+  
+  // Create embeddings for all documents
+  const docEmbeddings = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: documents
+  });
+  
+  // Search query
+  const query = 'programming languages';
+  const queryEmb = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: query
+  });
+  
+  // Calculate similarities
+  const results = documents.map((doc, i) => ({
+    document: doc,
+    similarity: client.embeddings.calculateCosineSimilarity(
+      queryEmb.embeddings[0],
+      docEmbeddings.embeddings[i]
+    )
+  }));
+  
+  // Sort by similarity
+  results.sort((a, b) => b.similarity - a.similarity);
+  
+  console.log(`Search results for: "${query}"\n`);
+  results.forEach((r, i) => {
+    console.log(`${i + 1}. (${r.similarity.toFixed(3)}) ${r.document}`);
+  });
+}
+```
+
+## Part 4: Real-World Project (75 min)
+
+### Final Project: Q&A System
+
+Build a complete question-answering system:
+
+<Tabs>
+  <Tab title="Setup">
+    ```javascript
+    // qa-system.js
+    const { OllamaClient } = require('tekimax-sdk');
+    const fs = require('fs').promises;
+    
+    class QASystem {
+      constructor() {
+        this.client = new OllamaClient();
+        this.knowledge = [];
+        this.embeddings = [];
+      }
+      
+      async loadKnowledge(files) {
+        for (const file of files) {
+          const content = await fs.readFile(file, 'utf-8');
+          this.knowledge.push({
+            file,
+            content,
+            chunks: this.chunkText(content)
+          });
+        }
+        await this.createEmbeddings();
+      }
+      
+      chunkText(text, chunkSize = 500) {
+        const words = text.split(' ');
+        const chunks = [];
+        for (let i = 0; i < words.length; i += chunkSize) {
+          chunks.push(words.slice(i, i + chunkSize).join(' '));
+        }
+        return chunks;
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Embeddings">
+    ```javascript
+    async createEmbeddings() {
+      const allChunks = [];
+      
+      for (const doc of this.knowledge) {
+        for (const chunk of doc.chunks) {
+          allChunks.push(chunk);
+        }
+      }
+      
+      const result = await this.client.embeddings.create({
+        model: 'gpt-oss-20',
+        input: allChunks
+      });
+      
+      this.embeddings = result.embeddings;
+    }
+    ```
+  </Tab>
+  <Tab title="Answer">
+    ```javascript
+    async answer(question) {
+      // Get question embedding
+      const qEmb = await this.client.embeddings.create({
+        model: 'gpt-oss-20',
+        input: question
+      });
+      
+      // Find most relevant chunks
+      const similarities = this.embeddings.map((emb, i) => ({
+        index: i,
+        similarity: this.client.embeddings.calculateCosineSimilarity(
+          qEmb.embeddings[0],
+          emb
+        )
+      }));
+      
+      similarities.sort((a, b) => b.similarity - a.similarity);
+      const topChunks = similarities.slice(0, 3);
+      
+      // Build context
+      const context = topChunks.map(c => {
+        let chunkIndex = 0;
+        for (const doc of this.knowledge) {
+          if (chunkIndex + doc.chunks.length > c.index) {
+            return doc.chunks[c.index - chunkIndex];
+          }
+          chunkIndex += doc.chunks.length;
+        }
+      }).join('\n\n');
+      
+      // Generate answer
+      const response = await this.client.models.generate({
+        model: 'gpt-oss-120',
+        prompt: `Context:\n${context}\n\nQuestion: ${question}\n\nAnswer:`,
+        temperature: 0.3
+      });
+      
+      return response.response;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Workshop Exercises
+
+### Exercise Solutions
+
+<AccordionGroup>
+  <Accordion title="Exercise 1: Temperature Comparison">
+    ```javascript
+    async function compareTemperatures() {
+      const prompt = 'Write a one-sentence story';
+      const temps = [0.1, 0.5, 0.9];
+      
+      for (const temp of temps) {
+        const response = await client.models.generate({
+          model: 'gpt-oss-20',
+          prompt,
+          temperature: temp
+        });
+        console.log(`Temp ${temp}: ${response.response}`);
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Exercise 2: Batch Processing">
+    ```javascript
+    async function batchProcess(prompts) {
+      const results = await Promise.all(
+        prompts.map(prompt => 
+          client.models.generate({
+            model: 'gpt-oss-20',
+            prompt
+          })
+        )
+      );
+      return results.map(r => r.response);
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Exercise 3: Error Handling">
+    ```javascript
+    async function safeGenerate(prompt) {
+      try {
+        const response = await client.models.generate({
+          model: 'gpt-oss-20',
+          prompt
+        });
+        return response.response;
+      } catch (error) {
+        if (error.code === 'MODEL_NOT_FOUND') {
+          console.error('Model not available. Run: tekimax-sdk setup');
+        } else if (error.code === 'CONNECTION_ERROR') {
+          console.error('Cannot connect to Ollama. Is it running?');
+        } else {
+          console.error('Unexpected error:', error);
+        }
+        return null;
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Assessment Checklist
+
+Track your progress:
+
+<Steps>
+  <Step title="CLI Mastery">
+    - [ ] Can list models
+    - [ ] Can generate text
+    - [ ] Understand parameters
+  </Step>
+  <Step title="API Proficiency">
+    - [ ] Can setup client
+    - [ ] Can generate responses
+    - [ ] Can create embeddings
+  </Step>
+  <Step title="Advanced Skills">
+    - [ ] Built chat interface
+    - [ ] Implemented search
+    - [ ] Handle errors properly
+  </Step>
+  <Step title="Project Complete">
+    - [ ] Q&A system works
+    - [ ] Understands architecture
+    - [ ] Can extend functionality
+  </Step>
+</Steps>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="AI Academy" icon="graduation-cap" href="/academy/overview">
+    Deep dive into AI concepts
+  </Card>
+  <Card title="API Docs" icon="book" href="/api-reference/overview">
+    Complete API reference
+  </Card>
+  <Card title="Examples" icon="code" href="https://github.com/TEKIMAX/tekimax-sdk/tree/main/examples">
+    More code examples
+  </Card>
+  <Card title="Support" icon="life-ring" href="https://github.com/TEKIMAX/tekimax-sdk/issues">
+    Get help
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+After completing this workshop:
+
+1. **Explore AI Academy**: Run `tekimax-sdk learn` for deeper understanding
+2. **Build Projects**: Apply skills to real applications
+3. **Contribute**: Share your projects and improvements
+4. **Stay Updated**: Follow our GitHub for updates
+
+<Note>
+  **Certificate**: Complete all exercises to receive your workshop completion certificate!
+</Note>
+
+<Tip>
+  Join our Discord community for ongoing support and advanced workshops!
+</Tip>

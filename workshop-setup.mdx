@@ -1,0 +1,322 @@
+---
+title: 'Workshop Setup'
+description: 'Complete setup guide for the Tekimax SDK workshop'
+icon: 'wrench'
+---
+
+# Workshop Setup Guide
+
+Get your environment ready for the Tekimax SDK workshop with this comprehensive setup guide.
+
+## Prerequisites
+
+Before starting, ensure you have these installed:
+
+<CardGroup cols={2}>
+  <Card title="Node.js v16+" icon="node-js">
+    [Download Node.js](https://nodejs.org/)
+    
+    Verify: `node --version`
+  </Card>
+  <Card title="Ollama" icon="server">
+    [Download Ollama](https://ollama.ai/download)
+    
+    Verify: `ollama --version`
+  </Card>
+  <Card title="Git" icon="git-alt">
+    [Download Git](https://git-scm.com/downloads)
+    
+    Verify: `git --version`
+  </Card>
+  <Card title="VS Code" icon="code">
+    [Download VS Code](https://code.visualstudio.com/)
+    
+    Recommended editor
+  </Card>
+</CardGroup>
+
+## Setup Steps
+
+<Steps>
+  <Step title="Clone Workshop Repository">
+    ```bash
+    git clone https://github.com/TEKIMAX/tekimax-sdk
+    cd tekimax-sdk
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+  
+  <Step title="Start Ollama">
+    <Tabs>
+      <Tab title="macOS/Linux">
+        ```bash
+        ollama serve
+        ```
+      </Tab>
+      <Tab title="Windows">
+        Ollama runs automatically as a service
+      </Tab>
+    </Tabs>
+    
+    Verify at: http://localhost:11434
+  </Step>
+  
+  <Step title="Download Models">
+    ```bash
+    # For GPT-OSS 20 (using llama2 as base)
+    ollama pull llama2:7b
+    echo "FROM llama2:7b" > Modelfile
+    ollama create gpt-oss-20 -f Modelfile
+    
+    # For GPT-OSS 120 (using mixtral as base)
+    ollama pull mixtral
+    echo "FROM mixtral" > Modelfile
+    ollama create gpt-oss-120 -f Modelfile
+    
+    # Verify models
+    ollama list
+    ```
+  </Step>
+  
+  <Step title="Install SDK Globally">
+    ```bash
+    npm install -g tekimax-sdk
+    
+    # Verify installation
+    tekimax-sdk help
+    ```
+  </Step>
+</Steps>
+
+## Workshop Directory Structure
+
+After setup, your directory will contain:
+
+```
+tekimax-sdk/
+├── src/                  # Source code
+│   ├── education/        # AI Academy lessons
+│   ├── models/           # Model management
+│   └── embeddings/       # Embedding operations
+├── examples/             # Example code
+│   ├── tool-example.js   # Tool usage
+│   └── openai-compat.js  # OpenAI compatibility
+├── docs/                 # Documentation
+│   ├── examples/         # Code examples
+│   └── workshop.md       # Workshop guide
+├── dist/                 # Compiled JavaScript
+├── package.json          # Dependencies
+└── README.md            # Getting started
+```
+
+## Create Sample Documents
+
+For semantic search exercises, create sample documents:
+
+<CodeGroup>
+
+```bash Create Directory
+mkdir -p documents
+```
+
+```bash Download Samples
+# AI article
+curl -o documents/ai.txt \
+  "https://en.wikipedia.org/wiki/Artificial_intelligence?action=raw"
+
+# Machine Learning article  
+curl -o documents/ml.txt \
+  "https://en.wikipedia.org/wiki/Machine_learning?action=raw"
+
+# LLM article
+curl -o documents/llm.txt \
+  "https://en.wikipedia.org/wiki/Large_language_model?action=raw"
+```
+
+```bash Create Custom
+echo "Your custom content here" > documents/custom.txt
+```
+
+</CodeGroup>
+
+## Verify Setup
+
+Run our setup verification:
+
+```bash
+tekimax-sdk setup
+```
+
+You should see:
+- ✅ Ollama is running
+- ✅ Models are available
+- ✅ SDK is installed
+
+## Workshop Exercises
+
+### Exercise 1: CLI Basics
+Learn to use the command-line interface:
+
+```bash
+# Learn AI concepts
+tekimax-sdk learn
+
+# Generate text
+tekimax-sdk generate -m gpt-oss-20 -p "Hello, AI!"
+
+# Create embeddings
+tekimax-sdk embed -m gpt-oss-20 -p "Sample text"
+```
+
+### Exercise 2: API Usage
+Work with the TypeScript/JavaScript API:
+
+```typescript
+import { OllamaClient } from 'tekimax-sdk';
+
+const client = new OllamaClient();
+
+// Generate text
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Explain AI'
+});
+```
+
+### Exercise 3: Advanced Features
+Build real applications:
+- Semantic search system
+- Chat interface
+- Tool calling
+- Fine-tuning workflows
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Ollama not running" icon="x">
+    ```bash
+    # Check if running
+    curl http://localhost:11434
+    
+    # Start manually
+    ollama serve
+    
+    # Check logs
+    journalctl -u ollama
+    ```
+  </Accordion>
+  
+  <Accordion title="Models not downloading" icon="download">
+    ```bash
+    # Verbose mode
+    ollama pull llama2 -v
+    
+    # Check disk space
+    df -h
+    
+    # Clear cache
+    rm -rf ~/.ollama/models
+    ```
+  </Accordion>
+  
+  <Accordion title="SDK installation issues" icon="npm">
+    ```bash
+    # Force reinstall
+    npm install -g tekimax-sdk --force
+    
+    # Check npm health
+    npm doctor
+    
+    # Clear cache
+    npm cache clean --force
+    ```
+  </Accordion>
+  
+  <Accordion title="Network issues" icon="wifi">
+    ```bash
+    # Test connectivity
+    curl https://ollama.ai/api/registry/models
+    
+    # Set proxy if needed
+    npm config set proxy http://proxy:port
+    npm config set https-proxy http://proxy:port
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Environment Variables
+
+Configure your environment:
+
+```bash
+# .env file
+OLLAMA_HOST=http://localhost:11434
+DEFAULT_MODEL=gpt-oss-20
+DEFAULT_TEMPERATURE=0.7
+
+# Export for session
+export OLLAMA_HOST=http://localhost:11434
+```
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="AI Academy" icon="graduation-cap" href="/academy/overview">
+    Learn AI concepts interactively
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Complete API documentation
+  </Card>
+  <Card title="Examples" icon="flask" href="https://github.com/TEKIMAX/tekimax-sdk/tree/main/examples">
+    Code examples on GitHub
+  </Card>
+  <Card title="Support" icon="question" href="https://github.com/TEKIMAX/tekimax-sdk/issues">
+    Get help with issues
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Complete Setup">
+    Run `tekimax-sdk setup` to verify
+  </Step>
+  <Step title="Start Learning">
+    Launch AI Academy with `tekimax-sdk learn`
+  </Step>
+  <Step title="Try Examples">
+    Generate your first text with the SDK
+  </Step>
+  <Step title="Build Projects">
+    Create your own AI applications
+  </Step>
+</Steps>
+
+<Note>
+  **Workshop Tip**: Complete the AI Academy first to understand concepts before diving into code!
+</Note>
+
+## Quick Start Commands
+
+```bash
+# Check everything is working
+tekimax-sdk setup
+
+# Start AI Academy
+tekimax-sdk learn
+
+# Your first generation
+tekimax-sdk generate -m gpt-oss-20 -p "Hello, workshop!"
+
+# Create an embedding
+tekimax-sdk embed -m gpt-oss-20 -p "Workshop text"
+```
+
+<Tip>
+  Join our workshop sessions every Tuesday at 2 PM EST! Check the [GitHub Events](https://github.com/TEKIMAX/tekimax-sdk/events) page.
+</Tip>
