@@ -34,17 +34,18 @@
     "name": "Start Learning",
     "url": "https://github.com/TEKIMAX/tekimax-sdk#-quick-start"
   },
-  "primaryTab": {
-    "name": "Documentation"
-  },
   "tabs": [
+    {
+      "name": "Documentation",
+      "url": "introduction"
+    },
+    {
+      "name": "Workshop",
+      "url": "workshop"
+    },
     {
       "name": "AI Academy",
       "url": "academy/overview"
-    },
-    {
-      "name": "CLI",
-      "url": "cli/learn"
     }
   ],
   "anchors": [
