@@ -40,22 +40,22 @@
   "tabs": [
     {
       "name": "AI Academy",
-      "url": "academy"
+      "url": "academy/overview"
     },
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "API Reference", 
+      "url": "api-reference/overview"
     },
     {
-      "name": "Examples",
-      "url": "examples"
+      "name": "CLI",
+      "url": "cli/learn"
     }
   ],
   "anchors": [
     {
       "name": "AI Academy",
       "icon": "graduation-cap",
-      "url": "academy"
+      "url": "academy/overview"
     },
     {
       "name": "GitHub",
@@ -64,7 +64,7 @@
     },
     {
       "name": "Support",
-      "icon": "discord",
+      "icon": "bug",
       "url": "https://github.com/TEKIMAX/tekimax-sdk/issues"
     }
   ],
@@ -78,33 +78,12 @@
       ]
     },
     {
-      "group": "Core Concepts",
-      "pages": [
-        "concepts/models",
-        "concepts/tokens",
-        "concepts/temperature",
-        "concepts/embeddings"
-      ]
-    },
-    {
       "group": "AI Academy",
       "pages": [
         "academy/overview",
         "academy/chapter-1-fundamentals",
         "academy/chapter-2-parameters",
-        "academy/chapter-3-embeddings",
-        "academy/chapter-4-finetuning",
-        "academy/chapter-5-prompting"
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/overview",
-        "api-reference/client",
-        "api-reference/models",
-        "api-reference/embeddings",
-        "api-reference/tools"
+        "academy/chapter-3-embeddings"
       ]
     },
     {
@@ -112,18 +91,13 @@
       "pages": [
         "cli/learn",
         "cli/setup",
-        "cli/generate",
-        "cli/embed",
-        "cli/list"
+        "cli/generate"
       ]
     },
     {
-      "group": "Examples",
+      "group": "API Documentation",
       "pages": [
-        "examples/basic-generation",
-        "examples/streaming",
-        "examples/embeddings",
-        "examples/tool-calling"
+        "api-reference/overview"
       ]
     }
   ],
@@ -131,7 +105,6 @@
     "github": "https://github.com/TEKIMAX/tekimax-sdk",
     "twitter": "https://twitter.com/tekimax"
   },
-  "backgroundImage": "/images/background.png",
   "metadata": {
     "og:title": "Tekimax SDK - Learn AI with GPT-OSS",
     "og:description": "Interactive AI education platform with built-in AI Academy. Learn LLMs, transformers, embeddings, and more while building with GPT-OSS 20 & 120 models.",
@@ -149,6 +122,5 @@
   "modeToggle": {
     "default": "dark",
     "isHidden": false
-  },
-  "versions": ["v2", "v1"]
+  }
 }
