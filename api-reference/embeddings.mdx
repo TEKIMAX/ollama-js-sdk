@@ -1,0 +1,501 @@
+---
+title: 'Embeddings'
+description: 'Text embeddings and vector operations API'
+icon: 'vector-square'
+---
+
+# Embeddings API
+
+Create and manipulate text embeddings for semantic search, similarity, and clustering.
+
+## Overview
+
+The Embeddings API enables:
+- Convert text to high-dimensional vectors
+- Calculate semantic similarity between texts
+- Build semantic search systems
+- Cluster related documents
+- Find similar content
+
+## Methods
+
+### create()
+
+Generate embeddings for text input.
+
+```typescript
+async create(params: EmbeddingParams): Promise<EmbeddingResponse>
+```
+
+<ParamField path="params" type="EmbeddingParams" required>
+  <Expandable title="properties">
+    <ParamField path="model" type="string" required>
+      Model to use: 'gpt-oss-20' or 'gpt-oss-120'
+    </ParamField>
+    
+    <ParamField path="input" type="string | string[]" required>
+      Text or array of texts to embed
+    </ParamField>
+    
+    <ParamField path="truncate" type="boolean" default="true">
+      Truncate input if exceeds context length
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Returns:** `Promise<EmbeddingResponse>`
+
+```typescript
+interface EmbeddingResponse {
+  embeddings: number[][];  // Array of embedding vectors
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    total_tokens: number;
+  };
+}
+```
+
+**Example:**
+```typescript
+// Single text
+const response = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Machine learning is fascinating'
+});
+
+// Multiple texts
+const batchResponse = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: [
+    'Artificial intelligence',
+    'Machine learning',
+    'Deep learning'
+  ]
+});
+```
+
+### calculateCosineSimilarity()
+
+Calculate cosine similarity between two vectors.
+
+```typescript
+calculateCosineSimilarity(vec1: number[], vec2: number[]): number
+```
+
+**Parameters:**
+- `vec1` - First embedding vector
+- `vec2` - Second embedding vector
+
+**Returns:** Similarity score between -1 and 1 (1 = identical)
+
+**Example:**
+```typescript
+const texts = ['cat', 'dog', 'car'];
+const response = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: texts
+});
+
+const similarity = client.embeddings.calculateCosineSimilarity(
+  response.embeddings[0],  // 'cat'
+  response.embeddings[1]   // 'dog'
+);
+
+console.log(`Similarity: ${similarity.toFixed(3)}`);
+// Output: Similarity: 0.85 (high - both are animals)
+```
+
+### findMostSimilar()
+
+Find the most similar embedding from a collection.
+
+```typescript
+findMostSimilar(
+  query: number[],
+  embeddings: number[][],
+  topK?: number
+): SimilarityResult[]
+```
+
+**Parameters:**
+- `query` - Query embedding vector
+- `embeddings` - Array of embedding vectors to search
+- `topK` - Number of results to return (default: 1)
+
+**Returns:** Array of similarity results
+
+```typescript
+interface SimilarityResult {
+  index: number;
+  similarity: number;
+  embedding: number[];
+}
+```
+
+**Example:**
+```typescript
+// Create embeddings for documents
+const documents = [
+  'Python is a programming language',
+  'JavaScript runs in browsers',
+  'Cats are independent pets',
+  'Dogs are loyal companions'
+];
+
+const docEmbeddings = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: documents
+});
+
+// Search query
+const queryEmb = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'web development'
+});
+
+// Find top 2 most similar
+const results = client.embeddings.findMostSimilar(
+  queryEmb.embeddings[0],
+  docEmbeddings.embeddings,
+  2
+);
+
+results.forEach(r => {
+  console.log(`${documents[r.index]}: ${r.similarity.toFixed(3)}`);
+});
+```
+
+### cluster()
+
+Group similar embeddings together.
+
+```typescript
+cluster(
+  embeddings: number[][],
+  numClusters: number,
+  options?: ClusterOptions
+): ClusterResult
+```
+
+**Parameters:**
+- `embeddings` - Array of embedding vectors
+- `numClusters` - Number of clusters to create
+- `options` - Clustering configuration
+
+```typescript
+interface ClusterOptions {
+  maxIterations?: number;  // Default: 100
+  tolerance?: number;       // Default: 0.001
+  seed?: number;           // Random seed
+}
+```
+
+**Returns:** Cluster assignments and centroids
+
+```typescript
+interface ClusterResult {
+  labels: number[];        // Cluster assignment for each embedding
+  centroids: number[][];   // Cluster center points
+  inertia: number;        // Sum of squared distances
+}
+```
+
+**Example:**
+```typescript
+const texts = [
+  'Python programming',
+  'JavaScript coding',
+  'Cat behavior',
+  'Dog training',
+  'Machine learning',
+  'Pet care'
+];
+
+const response = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: texts
+});
+
+const clusters = client.embeddings.cluster(
+  response.embeddings,
+  2  // Create 2 clusters
+);
+
+// Show cluster assignments
+texts.forEach((text, i) => {
+  console.log(`"${text}" -> Cluster ${clusters.labels[i]}`);
+});
+```
+
+## Practical Examples
+
+### Semantic Search System
+
+```typescript
+class SemanticSearch {
+  private documents: string[] = [];
+  private embeddings: number[][] = [];
+  
+  async indexDocuments(docs: string[]) {
+    this.documents = docs;
+    
+    const response = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: docs
+    });
+    
+    this.embeddings = response.embeddings;
+  }
+  
+  async search(query: string, topK: number = 5) {
+    const queryEmb = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: query
+    });
+    
+    const results = client.embeddings.findMostSimilar(
+      queryEmb.embeddings[0],
+      this.embeddings,
+      topK
+    );
+    
+    return results.map(r => ({
+      document: this.documents[r.index],
+      score: r.similarity
+    }));
+  }
+}
+
+// Usage
+const search = new SemanticSearch();
+await search.indexDocuments([
+  'TypeScript is a typed superset of JavaScript',
+  'Python is great for data science',
+  'Rust provides memory safety',
+  'Go is designed for concurrency'
+]);
+
+const results = await search.search('type safety', 2);
+```
+
+### Document Deduplication
+
+```typescript
+async function findDuplicates(
+  documents: string[],
+  threshold: number = 0.95
+) {
+  const response = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: documents
+  });
+  
+  const duplicates: Array<[number, number]> = [];
+  
+  for (let i = 0; i < response.embeddings.length; i++) {
+    for (let j = i + 1; j < response.embeddings.length; j++) {
+      const similarity = client.embeddings.calculateCosineSimilarity(
+        response.embeddings[i],
+        response.embeddings[j]
+      );
+      
+      if (similarity > threshold) {
+        duplicates.push([i, j]);
+      }
+    }
+  }
+  
+  return duplicates;
+}
+```
+
+### Question Answering
+
+```typescript
+async function findAnswer(
+  question: string,
+  documents: string[]
+) {
+  // Get embeddings for all documents
+  const docEmbeddings = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: documents
+  });
+  
+  // Get question embedding
+  const qEmb = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: question
+  });
+  
+  // Find most relevant document
+  const results = client.embeddings.findMostSimilar(
+    qEmb.embeddings[0],
+    docEmbeddings.embeddings,
+    3
+  );
+  
+  // Build context from top documents
+  const context = results
+    .map(r => documents[r.index])
+    .join('\n\n');
+  
+  // Generate answer using context
+  const answer = await client.models.generate({
+    model: 'gpt-oss-120',
+    prompt: `Context:\n${context}\n\nQuestion: ${question}\n\nAnswer:`,
+    temperature: 0.3
+  });
+  
+  return answer.response;
+}
+```
+
+## Embedding Dimensions
+
+<Tabs>
+  <Tab title="GPT-OSS 20">
+    - **Dimensions:** 4,096
+    - **Context:** 8,192 tokens
+    - **Speed:** Faster
+    - **Use for:** General semantic search
+  </Tab>
+  
+  <Tab title="GPT-OSS 120">
+    - **Dimensions:** 8,192
+    - **Context:** 32,768 tokens
+    - **Speed:** Slower but more accurate
+    - **Use for:** Complex similarity tasks
+  </Tab>
+</Tabs>
+
+## Performance Optimization
+
+### Batch Processing
+
+```typescript
+// Process in batches for better performance
+async function batchEmbed(
+  texts: string[],
+  batchSize: number = 100
+) {
+  const results: number[][] = [];
+  
+  for (let i = 0; i < texts.length; i += batchSize) {
+    const batch = texts.slice(i, i + batchSize);
+    const response = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: batch
+    });
+    results.push(...response.embeddings);
+  }
+  
+  return results;
+}
+```
+
+### Caching Embeddings
+
+```typescript
+class EmbeddingCache {
+  private cache = new Map<string, number[]>();
+  
+  async getEmbedding(text: string): Promise<number[]> {
+    if (this.cache.has(text)) {
+      return this.cache.get(text)!;
+    }
+    
+    const response = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: text
+    });
+    
+    const embedding = response.embeddings[0];
+    this.cache.set(text, embedding);
+    
+    return embedding;
+  }
+}
+```
+
+### Dimension Reduction
+
+```typescript
+// Reduce embedding dimensions for faster search
+function reduceDimensions(
+  embedding: number[],
+  targetDim: number
+): number[] {
+  // Simple averaging approach
+  const ratio = embedding.length / targetDim;
+  const reduced: number[] = [];
+  
+  for (let i = 0; i < targetDim; i++) {
+    const start = Math.floor(i * ratio);
+    const end = Math.floor((i + 1) * ratio);
+    const avg = embedding
+      .slice(start, end)
+      .reduce((a, b) => a + b, 0) / (end - start);
+    reduced.push(avg);
+  }
+  
+  return reduced;
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Text Preprocessing">
+    - Clean and normalize text before embedding
+    - Remove special characters if not needed
+    - Consider chunking long documents
+    - Maintain consistent formatting
+  </Accordion>
+  
+  <Accordion title="Similarity Thresholds">
+    - 0.9+ : Nearly identical
+    - 0.7-0.9 : Very similar
+    - 0.5-0.7 : Somewhat related
+    - Below 0.5 : Different topics
+  </Accordion>
+  
+  <Accordion title="Storage">
+    - Store embeddings in vector databases
+    - Use compression for large collections
+    - Index for faster retrieval
+    - Cache frequently used embeddings
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+```typescript
+try {
+  const response = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: veryLongText
+  });
+} catch (error) {
+  if (error.code === 'INPUT_TOO_LONG') {
+    // Chunk the text and retry
+    const chunks = chunkText(veryLongText, 8000);
+    const embeddings = await Promise.all(
+      chunks.map(chunk => 
+        client.embeddings.create({
+          model: 'gpt-oss-20',
+          input: chunk
+        })
+      )
+    );
+  }
+}
+```
+
+## See Also
+
+- [Models API](/api-reference/models) - Text generation
+- [Client API](/api-reference/client) - Client setup
+- [Workshop Guide](/workshop) - Hands-on examples
+- [AI Academy - Embeddings](/academy/chapter-3-embeddings) - Learn concepts

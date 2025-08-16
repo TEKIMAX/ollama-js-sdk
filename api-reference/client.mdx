@@ -1,0 +1,248 @@
+---
+title: 'Client'
+description: 'OllamaClient API Reference'
+icon: 'server'
+---
+
+# OllamaClient
+
+The main client class for interacting with Ollama and GPT-OSS models.
+
+## Constructor
+
+```typescript
+new OllamaClient(config?: ClientConfig)
+```
+
+### Parameters
+
+<ParamField path="config" type="ClientConfig" optional>
+  Configuration object for the client
+  
+  <Expandable title="properties">
+    <ParamField path="host" type="string" default="http://localhost:11434">
+      The Ollama server host URL
+    </ParamField>
+    
+    <ParamField path="timeout" type="number" default="30000">
+      Request timeout in milliseconds
+    </ParamField>
+    
+    <ParamField path="headers" type="object" optional>
+      Custom headers to include with requests
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Example Usage
+
+```typescript
+import { OllamaClient } from 'tekimax-sdk';
+
+// Default configuration
+const client = new OllamaClient();
+
+// Custom configuration
+const customClient = new OllamaClient({
+  host: 'http://192.168.1.100:11434',
+  timeout: 60000,
+  headers: {
+    'Authorization': 'Bearer token'
+  }
+});
+```
+
+## Properties
+
+### models
+
+Access model management functionality.
+
+```typescript
+client.models: ModelManager
+```
+
+**Available Methods:**
+- `generate()` - Generate text
+- `chat()` - Chat conversation
+- `list()` - List available models
+- `pull()` - Download a model
+- `delete()` - Remove a model
+- `info()` - Get model information
+
+### embeddings
+
+Access embedding operations.
+
+```typescript
+client.embeddings: EmbeddingsManager
+```
+
+**Available Methods:**
+- `create()` - Create embeddings
+- `calculateCosineSimilarity()` - Calculate similarity between vectors
+- `findMostSimilar()` - Find most similar embedding
+- `cluster()` - Cluster embeddings
+
+### tools
+
+Access tool calling functionality.
+
+```typescript
+client.tools: ToolsManager
+```
+
+**Available Methods:**
+- `call()` - Execute a tool
+- `register()` - Register a new tool
+- `list()` - List available tools
+- `validate()` - Validate tool parameters
+
+## Methods
+
+### isHealthy()
+
+Check if the Ollama server is running and responsive.
+
+```typescript
+async isHealthy(): Promise<boolean>
+```
+
+**Returns:** `Promise<boolean>` - True if server is healthy
+
+**Example:**
+```typescript
+const healthy = await client.isHealthy();
+if (healthy) {
+  console.log('Server is running');
+}
+```
+
+### getVersion()
+
+Get the Ollama server version.
+
+```typescript
+async getVersion(): Promise<string>
+```
+
+**Returns:** `Promise<string>` - Server version string
+
+**Example:**
+```typescript
+const version = await client.getVersion();
+console.log(`Ollama version: ${version}`);
+```
+
+### setDefaultModel()
+
+Set the default model for operations.
+
+```typescript
+setDefaultModel(model: string): void
+```
+
+**Parameters:**
+- `model` - Model name (e.g., 'gpt-oss-20', 'gpt-oss-120')
+
+**Example:**
+```typescript
+client.setDefaultModel('gpt-oss-120');
+```
+
+## Error Handling
+
+The client throws typed errors for different scenarios:
+
+```typescript
+try {
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt: 'Hello'
+  });
+} catch (error) {
+  if (error.code === 'CONNECTION_ERROR') {
+    console.error('Cannot connect to Ollama');
+  } else if (error.code === 'MODEL_NOT_FOUND') {
+    console.error('Model not available');
+  } else if (error.code === 'TIMEOUT') {
+    console.error('Request timed out');
+  }
+}
+```
+
+## TypeScript Types
+
+```typescript
+interface ClientConfig {
+  host?: string;
+  timeout?: number;
+  headers?: Record<string, string>;
+}
+
+interface ClientError {
+  code: 'CONNECTION_ERROR' | 'MODEL_NOT_FOUND' | 'TIMEOUT' | 'INVALID_PARAMS';
+  message: string;
+  details?: any;
+}
+```
+
+## Advanced Configuration
+
+### Custom HTTP Agent
+
+```typescript
+import { OllamaClient } from 'tekimax-sdk';
+import { Agent } from 'http';
+
+const client = new OllamaClient({
+  httpAgent: new Agent({
+    keepAlive: true,
+    maxSockets: 10
+  })
+});
+```
+
+### Proxy Configuration
+
+```typescript
+const client = new OllamaClient({
+  proxy: {
+    host: 'proxy.example.com',
+    port: 8080,
+    auth: {
+      username: 'user',
+      password: 'pass'
+    }
+  }
+});
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Connection Management">
+    - Reuse client instances
+    - Implement retry logic for transient failures
+    - Set appropriate timeouts for your use case
+  </Accordion>
+  
+  <Accordion title="Error Handling">
+    - Always wrap async calls in try-catch
+    - Check server health before operations
+    - Implement graceful degradation
+  </Accordion>
+  
+  <Accordion title="Performance">
+    - Use streaming for long responses
+    - Batch embedding operations
+    - Cache frequently used results
+  </Accordion>
+</AccordionGroup>
+
+## See Also
+
+- [Models API](/api-reference/models) - Text generation methods
+- [Embeddings API](/api-reference/embeddings) - Vector operations
+- [Tools API](/api-reference/tools) - Tool calling
+- [Quickstart Guide](/quickstart) - Getting started

@@ -1,0 +1,459 @@
+---
+title: 'Models'
+description: 'Model management and text generation API'
+icon: 'brain'
+---
+
+# Models API
+
+Complete API reference for model management and text generation with GPT-OSS models.
+
+## Overview
+
+The Models API provides methods for:
+- Text generation with GPT-OSS 20 and 120
+- Chat conversations with context
+- Model management (list, pull, delete)
+- Streaming responses
+- Fine-tuning capabilities
+
+## Methods
+
+### generate()
+
+Generate text using GPT-OSS models.
+
+```typescript
+async generate(params: GenerateParams): Promise<GenerateResponse>
+```
+
+<ParamField path="params" type="GenerateParams" required>
+  <Expandable title="properties">
+    <ParamField path="model" type="string" required>
+      Model name: 'gpt-oss-20' or 'gpt-oss-120'
+    </ParamField>
+    
+    <ParamField path="prompt" type="string" required>
+      The input prompt for generation
+    </ParamField>
+    
+    <ParamField path="temperature" type="number" default="0.7">
+      Controls randomness (0.0 to 1.0)
+    </ParamField>
+    
+    <ParamField path="max_tokens" type="number" optional>
+      Maximum tokens to generate
+    </ParamField>
+    
+    <ParamField path="stream" type="boolean" default="false">
+      Enable streaming response
+    </ParamField>
+    
+    <ParamField path="system" type="string" optional>
+      System prompt for behavior
+    </ParamField>
+    
+    <ParamField path="context" type="number[]" optional>
+      Previous conversation context
+    </ParamField>
+    
+    <ParamField path="top_p" type="number" default="1.0">
+      Nucleus sampling parameter
+    </ParamField>
+    
+    <ParamField path="top_k" type="number" default="40">
+      Top-k sampling parameter
+    </ParamField>
+    
+    <ParamField path="repeat_penalty" type="number" default="1.1">
+      Penalty for repetition
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Returns:** `Promise<GenerateResponse>`
+
+```typescript
+interface GenerateResponse {
+  response: string;
+  context?: number[];
+  done: boolean;
+  total_duration?: number;
+  load_duration?: number;
+  prompt_eval_duration?: number;
+  eval_duration?: number;
+  eval_count?: number;
+}
+```
+
+**Example:**
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Explain quantum computing',
+  temperature: 0.7,
+  max_tokens: 500
+});
+
+console.log(response.response);
+```
+
+### chat()
+
+Have a conversation with context management.
+
+```typescript
+async chat(params: ChatParams): Promise<ChatResponse>
+```
+
+<ParamField path="params" type="ChatParams" required>
+  <Expandable title="properties">
+    <ParamField path="model" type="string" required>
+      Model name: 'gpt-oss-20' or 'gpt-oss-120'
+    </ParamField>
+    
+    <ParamField path="messages" type="Message[]" required>
+      Array of conversation messages
+      
+      ```typescript
+      interface Message {
+        role: 'system' | 'user' | 'assistant';
+        content: string;
+      }
+      ```
+    </ParamField>
+    
+    <ParamField path="stream" type="boolean" default="false">
+      Enable streaming response
+    </ParamField>
+    
+    <ParamField path="temperature" type="number" default="0.7">
+      Controls randomness
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Example:**
+```typescript
+const response = await client.models.chat({
+  model: 'gpt-oss-120',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant' },
+    { role: 'user', content: 'What is TypeScript?' },
+    { role: 'assistant', content: 'TypeScript is...' },
+    { role: 'user', content: 'Can you give an example?' }
+  ]
+});
+```
+
+### list()
+
+List all available models.
+
+```typescript
+async list(): Promise<Model[]>
+```
+
+**Returns:** Array of model information
+
+```typescript
+interface Model {
+  name: string;
+  modified_at: string;
+  size: number;
+  digest: string;
+  details?: {
+    format: string;
+    family: string;
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+```
+
+**Example:**
+```typescript
+const models = await client.models.list();
+models.forEach(model => {
+  console.log(`${model.name}: ${model.size} bytes`);
+});
+```
+
+### pull()
+
+Download a model from the registry.
+
+```typescript
+async pull(params: PullParams): Promise<void>
+```
+
+<ParamField path="params" type="PullParams" required>
+  <Expandable title="properties">
+    <ParamField path="name" type="string" required>
+      Model name to download
+    </ParamField>
+    
+    <ParamField path="stream" type="boolean" default="true">
+      Stream download progress
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Example:**
+```typescript
+await client.models.pull({
+  name: 'llama2:7b',
+  stream: true
+});
+```
+
+### delete()
+
+Remove a model from local storage.
+
+```typescript
+async delete(name: string): Promise<void>
+```
+
+**Example:**
+```typescript
+await client.models.delete('old-model');
+```
+
+### info()
+
+Get detailed information about a model.
+
+```typescript
+async info(name: string): Promise<ModelInfo>
+```
+
+**Returns:** Detailed model information
+
+```typescript
+interface ModelInfo {
+  license: string;
+  modelfile: string;
+  parameters: string;
+  template: string;
+  details: {
+    parent_model: string;
+    format: string;
+    family: string;
+    families: string[];
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+```
+
+## Streaming
+
+### Stream Text Generation
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Write a story',
+  stream: true
+});
+
+for await (const chunk of StreamParser.parse(response)) {
+  process.stdout.write(chunk.response);
+}
+```
+
+### Stream with Progress
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-120',
+  prompt: 'Complex analysis',
+  stream: true
+});
+
+let totalTokens = 0;
+for await (const chunk of StreamParser.parse(response)) {
+  process.stdout.write(chunk.response);
+  totalTokens += chunk.eval_count || 0;
+  
+  // Show progress
+  if (chunk.done) {
+    console.log(`\n\nGenerated ${totalTokens} tokens`);
+  }
+}
+```
+
+## Model Selection Guide
+
+### GPT-OSS 20
+- **Parameters:** 20B
+- **Context:** 8,192 tokens
+- **Best for:** General tasks, quick responses
+- **Speed:** Faster
+- **Memory:** ~12GB
+
+```typescript
+// Optimal for general use
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Explain Python decorators',
+  temperature: 0.7
+});
+```
+
+### GPT-OSS 120
+- **Parameters:** 120B
+- **Context:** 32,768 tokens
+- **Best for:** Complex reasoning, long documents
+- **Speed:** Slower but more accurate
+- **Memory:** ~70GB
+
+```typescript
+// For complex tasks
+const response = await client.models.generate({
+  model: 'gpt-oss-120',
+  prompt: longDocument,
+  temperature: 0.3,
+  max_tokens: 4000
+});
+```
+
+## Temperature Guide
+
+<Tabs>
+  <Tab title="Factual (0.1-0.3)">
+    ```typescript
+    // For facts, code, technical content
+    await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'List Python data types',
+      temperature: 0.2
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Balanced (0.4-0.7)">
+    ```typescript
+    // For general content
+    await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Explain machine learning',
+      temperature: 0.6
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Creative (0.8-1.0)">
+    ```typescript
+    // For stories, ideas, brainstorming
+    await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Write a creative story',
+      temperature: 0.9
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Error Handling
+
+```typescript
+try {
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt: 'Hello'
+  });
+} catch (error) {
+  switch(error.code) {
+    case 'MODEL_NOT_FOUND':
+      console.error('Model not installed. Run: ollama pull llama2');
+      break;
+    case 'CONTEXT_LENGTH_EXCEEDED':
+      console.error('Prompt too long for model');
+      break;
+    case 'OUT_OF_MEMORY':
+      console.error('Insufficient GPU/RAM');
+      break;
+    default:
+      console.error('Generation failed:', error.message);
+  }
+}
+```
+
+## Advanced Usage
+
+### Context Management
+
+```typescript
+let context = [];
+
+async function continueConversation(prompt: string) {
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt,
+    context,
+    temperature: 0.7
+  });
+  
+  // Update context for next turn
+  if (response.context) {
+    context = response.context;
+  }
+  
+  return response.response;
+}
+```
+
+### Batch Processing
+
+```typescript
+async function batchGenerate(prompts: string[]) {
+  const results = await Promise.all(
+    prompts.map(prompt => 
+      client.models.generate({
+        model: 'gpt-oss-20',
+        prompt,
+        temperature: 0.5
+      })
+    )
+  );
+  
+  return results.map(r => r.response);
+}
+```
+
+### Custom System Prompts
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-120',
+  prompt: 'Review this code',
+  system: 'You are an expert code reviewer. Focus on security, performance, and best practices.',
+  temperature: 0.3
+});
+```
+
+## Performance Tips
+
+<CardGroup cols={2}>
+  <Card title="Use Streaming" icon="stream">
+    For better UX with long responses
+  </Card>
+  <Card title="Adjust Temperature" icon="thermometer">
+    Lower for consistency, higher for creativity
+  </Card>
+  <Card title="Manage Context" icon="memory">
+    Clear context periodically to save memory
+  </Card>
+  <Card title="Choose Model Wisely" icon="brain">
+    GPT-OSS 20 for speed, 120 for quality
+  </Card>
+</CardGroup>
+
+## See Also
+
+- [Client API](/api-reference/client) - Client configuration
+- [Embeddings API](/api-reference/embeddings) - Vector operations
+- [Streaming Guide](/guides/streaming) - Advanced streaming
+- [Model Setup](/cli/setup) - Installing models

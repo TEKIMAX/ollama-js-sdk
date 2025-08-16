@@ -77,7 +77,11 @@
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/overview"
+        "api-reference/overview",
+        "api-reference/client",
+        "api-reference/models",
+        "api-reference/embeddings",
+        "api-reference/tools"
       ]
     },
     {

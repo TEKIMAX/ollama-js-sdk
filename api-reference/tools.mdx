@@ -1,0 +1,649 @@
+---
+title: 'Tools'
+description: 'Tool calling and function execution API'
+icon: 'toolbox'
+---
+
+# Tools API
+
+Enable models to call functions and interact with external systems.
+
+## Overview
+
+The Tools API allows GPT-OSS models to:
+- Execute predefined functions
+- Interact with external APIs
+- Process structured data
+- Chain multiple operations
+- Build agent workflows
+
+## Methods
+
+### call()
+
+Execute a tool with the model.
+
+```typescript
+async call(params: ToolCallParams): Promise<ToolCallResponse>
+```
+
+<ParamField path="params" type="ToolCallParams" required>
+  <Expandable title="properties">
+    <ParamField path="model" type="string" required>
+      Model to use: 'gpt-oss-20' or 'gpt-oss-120'
+    </ParamField>
+    
+    <ParamField path="messages" type="Message[]" required>
+      Conversation messages
+    </ParamField>
+    
+    <ParamField path="tools" type="Tool[]" required>
+      Available tools for the model
+    </ParamField>
+    
+    <ParamField path="temperature" type="number" default="0.7">
+      Generation temperature
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Returns:** Tool call response with function invocations
+
+```typescript
+interface ToolCallResponse {
+  message: {
+    role: 'assistant';
+    content: string;
+    tool_calls?: ToolCall[];
+  };
+  done: boolean;
+}
+
+interface ToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;  // JSON string
+  };
+}
+```
+
+**Example:**
+```typescript
+const response = await client.tools.call({
+  model: 'gpt-oss-120',
+  messages: [
+    { role: 'user', content: 'What is the weather in NYC?' }
+  ],
+  tools: [
+    {
+      type: 'function',
+      function: {
+        name: 'get_weather',
+        description: 'Get weather for a location',
+        parameters: {
+          type: 'object',
+          properties: {
+            location: { type: 'string' },
+            unit: { type: 'string', enum: ['celsius', 'fahrenheit'] }
+          },
+          required: ['location']
+        }
+      }
+    }
+  ]
+});
+```
+
+### register()
+
+Register a tool for use with models.
+
+```typescript
+register(tool: Tool): void
+```
+
+**Parameters:**
+- `tool` - Tool definition with schema
+
+```typescript
+interface Tool {
+  type: 'function';
+  function: {
+    name: string;
+    description: string;
+    parameters: {
+      type: 'object';
+      properties: Record<string, any>;
+      required?: string[];
+    };
+    implementation?: Function;  // Optional implementation
+  };
+}
+```
+
+**Example:**
+```typescript
+client.tools.register({
+  type: 'function',
+  function: {
+    name: 'calculate',
+    description: 'Perform mathematical calculations',
+    parameters: {
+      type: 'object',
+      properties: {
+        expression: {
+          type: 'string',
+          description: 'Math expression to evaluate'
+        }
+      },
+      required: ['expression']
+    },
+    implementation: (args) => {
+      return eval(args.expression);
+    }
+  }
+});
+```
+
+### list()
+
+List all registered tools.
+
+```typescript
+list(): Tool[]
+```
+
+**Returns:** Array of registered tools
+
+**Example:**
+```typescript
+const tools = client.tools.list();
+tools.forEach(tool => {
+  console.log(`${tool.function.name}: ${tool.function.description}`);
+});
+```
+
+### validate()
+
+Validate tool parameters.
+
+```typescript
+validate(toolName: string, parameters: any): ValidationResult
+```
+
+**Returns:** Validation result
+
+```typescript
+interface ValidationResult {
+  valid: boolean;
+  errors?: string[];
+}
+```
+
+**Example:**
+```typescript
+const result = client.tools.validate('get_weather', {
+  location: 'New York'
+});
+
+if (!result.valid) {
+  console.error('Invalid parameters:', result.errors);
+}
+```
+
+## Tool Definitions
+
+### Basic Tool
+
+```typescript
+const searchTool: Tool = {
+  type: 'function',
+  function: {
+    name: 'web_search',
+    description: 'Search the web for information',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Search query'
+        },
+        max_results: {
+          type: 'number',
+          description: 'Maximum results to return',
+          default: 5
+        }
+      },
+      required: ['query']
+    }
+  }
+};
+```
+
+### Complex Tool
+
+```typescript
+const databaseTool: Tool = {
+  type: 'function',
+  function: {
+    name: 'query_database',
+    description: 'Query a SQL database',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'SQL query to execute'
+        },
+        database: {
+          type: 'string',
+          enum: ['users', 'products', 'orders'],
+          description: 'Database to query'
+        },
+        limit: {
+          type: 'number',
+          description: 'Result limit',
+          minimum: 1,
+          maximum: 100
+        }
+      },
+      required: ['query', 'database']
+    }
+  }
+};
+```
+
+## Complete Examples
+
+### Weather Assistant
+
+```typescript
+// Define weather tool
+const weatherTool = {
+  type: 'function',
+  function: {
+    name: 'get_current_weather',
+    description: 'Get current weather for a location',
+    parameters: {
+      type: 'object',
+      properties: {
+        location: {
+          type: 'string',
+          description: 'City and state/country'
+        },
+        unit: {
+          type: 'string',
+          enum: ['celsius', 'fahrenheit'],
+          default: 'fahrenheit'
+        }
+      },
+      required: ['location']
+    }
+  }
+};
+
+// Implement tool execution
+async function executeWeatherTool(args: any) {
+  // In real app, call weather API
+  return {
+    location: args.location,
+    temperature: 72,
+    unit: args.unit || 'fahrenheit',
+    conditions: 'Partly cloudy'
+  };
+}
+
+// Use with model
+async function weatherAssistant(userQuery: string) {
+  // First, let model decide if it needs the tool
+  const response = await client.tools.call({
+    model: 'gpt-oss-120',
+    messages: [
+      { role: 'user', content: userQuery }
+    ],
+    tools: [weatherTool]
+  });
+  
+  // Check if model wants to use a tool
+  if (response.message.tool_calls) {
+    const results = [];
+    
+    for (const call of response.message.tool_calls) {
+      const args = JSON.parse(call.function.arguments);
+      const result = await executeWeatherTool(args);
+      results.push(result);
+    }
+    
+    // Send tool results back to model
+    const finalResponse = await client.models.generate({
+      model: 'gpt-oss-120',
+      prompt: `Tool results: ${JSON.stringify(results)}\n\nProvide a natural response about the weather.`,
+      temperature: 0.7
+    });
+    
+    return finalResponse.response;
+  }
+  
+  return response.message.content;
+}
+
+// Usage
+const answer = await weatherAssistant("What's the weather in San Francisco?");
+```
+
+### Multi-Tool Agent
+
+```typescript
+class Agent {
+  private tools: Map<string, Function> = new Map();
+  
+  constructor(private client: OllamaClient) {
+    this.setupTools();
+  }
+  
+  private setupTools() {
+    // Calculator tool
+    this.registerTool({
+      name: 'calculate',
+      description: 'Perform calculations',
+      parameters: {
+        expression: { type: 'string' }
+      },
+      implementation: (args) => eval(args.expression)
+    });
+    
+    // Date/time tool
+    this.registerTool({
+      name: 'get_datetime',
+      description: 'Get current date and time',
+      parameters: {},
+      implementation: () => new Date().toISOString()
+    });
+    
+    // File reader tool
+    this.registerTool({
+      name: 'read_file',
+      description: 'Read a file',
+      parameters: {
+        path: { type: 'string' }
+      },
+      implementation: async (args) => {
+        const fs = require('fs').promises;
+        return await fs.readFile(args.path, 'utf-8');
+      }
+    });
+  }
+  
+  private registerTool(config: any) {
+    const tool = {
+      type: 'function',
+      function: {
+        name: config.name,
+        description: config.description,
+        parameters: {
+          type: 'object',
+          properties: config.parameters,
+          required: Object.keys(config.parameters)
+        }
+      }
+    };
+    
+    this.client.tools.register(tool);
+    this.tools.set(config.name, config.implementation);
+  }
+  
+  async process(query: string) {
+    const messages = [{ role: 'user', content: query }];
+    
+    while (true) {
+      const response = await this.client.tools.call({
+        model: 'gpt-oss-120',
+        messages,
+        tools: this.client.tools.list()
+      });
+      
+      if (!response.message.tool_calls) {
+        return response.message.content;
+      }
+      
+      // Execute tools
+      const toolResults = [];
+      for (const call of response.message.tool_calls) {
+        const impl = this.tools.get(call.function.name);
+        if (impl) {
+          const args = JSON.parse(call.function.arguments);
+          const result = await impl(args);
+          toolResults.push({
+            tool_call_id: call.id,
+            output: result
+          });
+        }
+      }
+      
+      // Add tool results to messages
+      messages.push(response.message);
+      messages.push({
+        role: 'tool',
+        content: JSON.stringify(toolResults)
+      });
+    }
+  }
+}
+```
+
+### Database Query Tool
+
+```typescript
+const dbQueryTool = {
+  type: 'function',
+  function: {
+    name: 'sql_query',
+    description: 'Execute SQL queries safely',
+    parameters: {
+      type: 'object',
+      properties: {
+        operation: {
+          type: 'string',
+          enum: ['SELECT', 'COUNT', 'SUM', 'AVG'],
+          description: 'SQL operation'
+        },
+        table: {
+          type: 'string',
+          description: 'Table name'
+        },
+        columns: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Columns to select'
+        },
+        conditions: {
+          type: 'object',
+          description: 'WHERE conditions'
+        },
+        limit: {
+          type: 'number',
+          default: 10
+        }
+      },
+      required: ['operation', 'table']
+    }
+  }
+};
+
+async function naturalLanguageQuery(request: string) {
+  const response = await client.tools.call({
+    model: 'gpt-oss-120',
+    messages: [
+      {
+        role: 'system',
+        content: 'Convert natural language to SQL queries using the tool.'
+      },
+      {
+        role: 'user',
+        content: request
+      }
+    ],
+    tools: [dbQueryTool],
+    temperature: 0.3
+  });
+  
+  if (response.message.tool_calls) {
+    const call = response.message.tool_calls[0];
+    const params = JSON.parse(call.function.arguments);
+    
+    // Build safe SQL query
+    const sql = buildSafeQuery(params);
+    console.log('Generated SQL:', sql);
+    
+    // Execute query (with your database)
+    // const results = await db.query(sql);
+    // return results;
+  }
+}
+```
+
+## Tool Chaining
+
+```typescript
+async function chainedTools(task: string) {
+  const tools = [
+    {
+      type: 'function',
+      function: {
+        name: 'search',
+        description: 'Search for information',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' }
+          }
+        }
+      }
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'summarize',
+        description: 'Summarize text',
+        parameters: {
+          type: 'object',
+          properties: {
+            text: { type: 'string' },
+            max_length: { type: 'number' }
+          }
+        }
+      }
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'translate',
+        description: 'Translate text',
+        parameters: {
+          type: 'object',
+          properties: {
+            text: { type: 'string' },
+            target_language: { type: 'string' }
+          }
+        }
+      }
+    }
+  ];
+  
+  const response = await client.tools.call({
+    model: 'gpt-oss-120',
+    messages: [
+      {
+        role: 'system',
+        content: 'Use tools in sequence to complete the task.'
+      },
+      {
+        role: 'user',
+        content: task
+      }
+    ],
+    tools,
+    temperature: 0.5
+  });
+  
+  // Process tool calls in order
+  // Implementation depends on your tool backends
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Tool Design">
+    - Keep tools focused on single tasks
+    - Use clear, descriptive names
+    - Provide detailed descriptions
+    - Define all parameters clearly
+  </Accordion>
+  
+  <Accordion title="Error Handling">
+    - Validate parameters before execution
+    - Handle tool failures gracefully
+    - Provide fallback responses
+    - Log tool usage for debugging
+  </Accordion>
+  
+  <Accordion title="Security">
+    - Sanitize all inputs
+    - Limit tool permissions
+    - Implement rate limiting
+    - Audit tool usage
+  </Accordion>
+  
+  <Accordion title="Performance">
+    - Cache tool results when possible
+    - Batch similar operations
+    - Use async execution
+    - Monitor execution time
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+```typescript
+try {
+  const response = await client.tools.call({
+    model: 'gpt-oss-120',
+    messages,
+    tools
+  });
+  
+  if (response.message.tool_calls) {
+    for (const call of response.message.tool_calls) {
+      try {
+        const args = JSON.parse(call.function.arguments);
+        // Validate before execution
+        const validation = client.tools.validate(
+          call.function.name,
+          args
+        );
+        
+        if (!validation.valid) {
+          throw new Error(`Invalid args: ${validation.errors}`);
+        }
+        
+        // Execute tool
+      } catch (toolError) {
+        console.error(`Tool ${call.function.name} failed:`, toolError);
+        // Handle gracefully
+      }
+    }
+  }
+} catch (error) {
+  console.error('Tool calling failed:', error);
+}
+```
+
+## See Also
+
+- [Models API](/api-reference/models) - Text generation
+- [Client API](/api-reference/client) - Client setup
+- [Workshop Guide](/workshop) - Hands-on examples
+- [Tool Example](/examples/tool-example) - Complete example
