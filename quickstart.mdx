@@ -1,7 +1,8 @@
 ---
-title: 'Quick Start'
-description: 'Get up and running with Tekimax SDK in 5 minutes'
-icon: 'bolt'
+title: "Quick Start"
+description: "Get up and running with Tekimax SDK in 5 minutes"
+icon: "bolt"
+mode: "wide"
 ---
 
 ## Prerequisites
@@ -27,9 +28,11 @@ Install Tekimax SDK globally to access the CLI from anywhere:
 npm install -g tekimax-sdk
 ```
 
+
 ```bash yarn
 yarn global add tekimax-sdk
 ```
+
 
 ```bash pnpm
 pnpm add -g tekimax-sdk
@@ -46,6 +49,7 @@ tekimax-sdk setup
 ```
 
 This command will:
+
 - ✅ Check if Ollama is running
 - ✅ Verify available models
 - ✅ Suggest installation steps if needed
@@ -63,10 +67,11 @@ tekimax-sdk learn
 ```
 
 <Frame>
-  <img src="/images/ai-academy-menu.png" alt="AI Academy Menu" />
+  ![AI Academy Menu](/images/ai-academy-menu.png)
 </Frame>
 
 Navigate through:
+
 - 📚 5 comprehensive chapters
 - 🎯 Interactive quizzes
 - 🔍 Searchable content
@@ -135,6 +140,7 @@ Convert text to vector representations:
 tekimax-sdk embed -m gpt-oss-20 -p "Semantic search query"
 ```
 
+
 ```typescript TypeScript
 const embedding = await client.embeddings.create({
   model: 'gpt-oss-20',
@@ -162,12 +168,12 @@ const response = await client.models.generate({
 ```
 
 <Accordion title="Parameter Guide">
-  | Parameter | Range | Description |
-  |-----------|-------|-------------|
+  | Parameter     | Range   | Description                                       |
+  | ------------- | ------- | ------------------------------------------------- |
   | `temperature` | 0.0-2.0 | Controls randomness (0=deterministic, 1=balanced) |
-  | `top_p` | 0.0-1.0 | Nucleus sampling threshold |
-  | `top_k` | 1-100 | Limits vocabulary to top K tokens |
-  | `max_tokens` | 1-4096 | Maximum output length |
+  | `top_p`       | 0.0-1.0 | Nucleus sampling threshold                        |
+  | `top_k`       | 1-100   | Limits vocabulary to top K tokens                 |
+  | `max_tokens`  | 1-4096  | Maximum output length                             |
 </Accordion>
 
 ## Common Use Cases
@@ -206,16 +212,20 @@ const response = await client.models.generate({
 <AccordionGroup>
   <Accordion title="Ollama is not running">
     Start Ollama with:
+
     ```bash
     ollama serve
     ```
   </Accordion>
   <Accordion title="Model not found">
     Pull a model first:
+
     ```bash
     ollama pull llama2
     ```
+
     Then create an alias for GPT-OSS:
+
     ```bash
     echo "FROM llama2" > Modelfile
     ollama create gpt-oss-20 -f Modelfile
@@ -223,6 +233,7 @@ const response = await client.models.generate({
   </Accordion>
   <Accordion title="Connection refused">
     Check if Ollama is running on the correct port:
+
     ```bash
     curl http://localhost:11434/api/tags
     ```
@@ -234,6 +245,7 @@ const response = await client.models.generate({
 <Steps>
   <Step title="Complete AI Academy">
     Learn all AI concepts through interactive lessons:
+
     ```bash
     tekimax-sdk learn
     ```
@@ -250,5 +262,5 @@ const response = await client.models.generate({
 </Steps>
 
 <Tip>
-  **Pro Tip**: Use `tekimax-sdk help` to see all available commands and options!
+  **Pro Tip**: Use `tekimax-sdk help` to see all available commands and options\!
 </Tip>
