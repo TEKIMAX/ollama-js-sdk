@@ -1,0 +1,346 @@
+---
+title: 'Installation'
+description: 'Complete installation guide for Tekimax SDK'
+icon: 'download'
+---
+
+## System Requirements
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js">
+    Version 16.0 or higher
+  </Card>
+  <Card title="Memory" icon="memory">
+    8GB RAM minimum (16GB+ recommended)
+  </Card>
+  <Card title="OS Support" icon="computer">
+    Windows, macOS, Linux
+  </Card>
+</CardGroup>
+
+## Install Tekimax SDK
+
+### Global Installation (Recommended)
+
+For CLI access from anywhere:
+
+<CodeGroup>
+
+```bash npm
+npm install -g tekimax-sdk
+```
+
+```bash yarn
+yarn global add tekimax-sdk
+```
+
+```bash pnpm
+pnpm add -g tekimax-sdk
+```
+
+```bash bun
+bun add -g tekimax-sdk
+```
+
+</CodeGroup>
+
+### Project Installation
+
+For use in your TypeScript/JavaScript projects:
+
+<CodeGroup>
+
+```bash npm
+npm install tekimax-sdk
+```
+
+```bash yarn
+yarn add tekimax-sdk
+```
+
+```bash pnpm
+pnpm add tekimax-sdk
+```
+
+```bash bun
+bun add tekimax-sdk
+```
+
+</CodeGroup>
+
+## Install Ollama
+
+Tekimax SDK requires Ollama for model execution:
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    # Download from official website
+    curl -fsSL https://ollama.ai/install.sh | sh
+    
+    # Or using Homebrew
+    brew install ollama
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```bash
+    curl -fsSL https://ollama.ai/install.sh | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    Download the installer from [ollama.ai](https://ollama.ai/download/windows)
+  </Tab>
+  <Tab title="Docker">
+    ```bash
+    docker run -d -v ollama:/root/.ollama \
+      -p 11434:11434 \
+      --name ollama \
+      ollama/ollama
+    ```
+  </Tab>
+</Tabs>
+
+## Setup GPT-OSS Models
+
+### Option 1: Use Existing Models
+
+If you have Ollama models installed, create aliases:
+
+```bash
+# Create GPT-OSS 20 from llama2
+echo "FROM llama2" > Modelfile
+ollama create gpt-oss-20 -f Modelfile
+
+# Create GPT-OSS 120 from mixtral
+echo "FROM mixtral" > Modelfile
+ollama create gpt-oss-120 -f Modelfile
+```
+
+### Option 2: Pull Models
+
+Pull models from Ollama registry:
+
+```bash
+# Pull smaller models for GPT-OSS 20
+ollama pull llama2:7b
+ollama pull mistral
+
+# Pull larger models for GPT-OSS 120
+ollama pull mixtral
+ollama pull llama2:70b
+```
+
+## Verify Installation
+
+<Steps>
+  <Step title="Check SDK Installation">
+    ```bash
+    tekimax-sdk --version
+    ```
+    Should display: `2.0.0`
+  </Step>
+  <Step title="Check Ollama">
+    ```bash
+    ollama list
+    ```
+    Should show available models
+  </Step>
+  <Step title="Run Setup Check">
+    ```bash
+    tekimax-sdk setup
+    ```
+    Verifies everything is configured correctly
+  </Step>
+  <Step title="Test Generation">
+    ```bash
+    tekimax-sdk generate -p "Hello, AI!"
+    ```
+    Should generate a response
+  </Step>
+</Steps>
+
+## TypeScript Setup
+
+For TypeScript projects, the SDK includes full type definitions:
+
+```typescript
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  }
+}
+```
+
+```typescript
+// index.ts
+import { OllamaClient, SUPPORTED_MODELS } from 'tekimax-sdk';
+
+const client = new OllamaClient({
+  baseUrl: 'http://localhost:11434'
+});
+
+// TypeScript will provide full intellisense
+const models = client.models.getSupportedModels();
+```
+
+## Environment Variables
+
+Configure SDK behavior with environment variables:
+
+```bash
+# .env file
+OLLAMA_HOST=http://localhost:11434
+DEFAULT_MODEL=gpt-oss-20
+DEFAULT_TEMPERATURE=0.7
+```
+
+```typescript
+// Load environment variables
+import { OllamaClient } from 'tekimax-sdk';
+
+const client = new OllamaClient({
+  baseUrl: process.env.OLLAMA_HOST || 'http://localhost:11434'
+});
+```
+
+## Docker Deployment
+
+Run Tekimax SDK in Docker:
+
+```dockerfile
+# Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+RUN npm install -g tekimax-sdk
+
+# Install Ollama
+RUN apk add --no-cache curl bash
+RUN curl -fsSL https://ollama.ai/install.sh | sh
+
+CMD ["tekimax-sdk", "help"]
+```
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+  tekimax:
+    build: .
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - ollama
+
+volumes:
+  ollama:
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command not found">
+    If `tekimax-sdk` is not recognized:
+    ```bash
+    # Check npm global path
+    npm config get prefix
+    
+    # Add to PATH (bash/zsh)
+    export PATH="$(npm config get prefix)/bin:$PATH"
+    
+    # Add to PATH (fish)
+    set -U fish_user_paths (npm config get prefix)/bin $fish_user_paths
+    ```
+  </Accordion>
+  <Accordion title="Permission denied">
+    Fix npm permissions:
+    ```bash
+    # Option 1: Use npx
+    npx tekimax-sdk learn
+    
+    # Option 2: Fix npm permissions
+    npm config set prefix ~/.npm-global
+    export PATH=~/.npm-global/bin:$PATH
+    ```
+  </Accordion>
+  <Accordion title="Ollama connection failed">
+    Check Ollama status:
+    ```bash
+    # Check if running
+    ps aux | grep ollama
+    
+    # Start Ollama
+    ollama serve
+    
+    # Test connection
+    curl http://localhost:11434/api/tags
+    ```
+  </Accordion>
+  <Accordion title="Module not found">
+    Clear cache and reinstall:
+    ```bash
+    npm cache clean --force
+    npm uninstall -g tekimax-sdk
+    npm install -g tekimax-sdk
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Platform-Specific Notes
+
+<Tabs>
+  <Tab title="macOS">
+    - Use Homebrew for easy installation
+    - May need to allow Ollama in Security settings
+    - Rosetta 2 required for M1/M2 Macs
+  </Tab>
+  <Tab title="Windows">
+    - Run terminal as Administrator for global install
+    - Windows Defender may scan Ollama first run
+    - WSL2 recommended for better performance
+  </Tab>
+  <Tab title="Linux">
+    - May need sudo for global npm install
+    - Check firewall settings for port 11434
+    - systemd service available for Ollama
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get running in 5 minutes
+  </Card>
+  <Card
+    title="AI Academy"
+    icon="graduation-cap"
+    href="/academy/overview"
+  >
+    Start learning AI concepts
+  </Card>
+</CardGroup>
+
+<Note>
+  Need help? Check our [GitHub Issues](https://github.com/TEKIMAX/tekimax-sdk/issues) or [Troubleshooting Guide](/troubleshooting)
+</Note>

@@ -1,94 +1,154 @@
 {
+  "$schema": "https://mintlify.com/schema.json",
   "name": "Tekimax SDK",
   "logo": {
     "light": "/logo.png",
-    "dark": "/logo.png"
+    "dark": "/logo.png",
+    "href": "https://tekimax.com"
   },
   "favicon": "/logo.png",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#0088ff",
+    "light": "#00ff88",
+    "dark": "#8800ff",
+    "background": {
+      "dark": "#090014",
+      "light": "#ffffff"
+    },
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#0088ff",
+      "to": "#00ff88"
     }
   },
-  "theme": "venus",
   "topbarLinks": [
     {
       "name": "GitHub",
       "url": "https://github.com/TEKIMAX/tekimax-sdk"
+    },
+    {
+      "name": "npm",
+      "url": "https://www.npmjs.com/package/tekimax-sdk"
     }
   ],
   "topbarCtaButton": {
-    "name": "Get Started",
-    "url": "/docs/getting-started"
+    "name": "Start Learning",
+    "url": "https://github.com/TEKIMAX/tekimax-sdk#-quick-start"
+  },
+  "primaryTab": {
+    "name": "Documentation"
   },
   "tabs": [
     {
-      "name": "Educational Resources",
-      "url": "docs/workshop"
-    }
-  ],
-  "metadata": {
-    "description": "An educational TypeScript SDK for working with Large Language Models, created for workshops and AI literacy initiatives. Currently supports Ollama API with plans to add OpenAI, Claude, Gemini, Meta, Mistral and other LLM providers."
-  },
-  "anchors": [
+      "name": "AI Academy",
+      "url": "academy"
+    },
     {
       "name": "API Reference",
-      "icon": "rectangle-terminal",
-      "url": "docs/api"
+      "url": "api-reference"
     },
     {
       "name": "Examples",
-      "icon": "code",
-      "url": "docs/examples"
+      "url": "examples"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "AI Academy",
+      "icon": "graduation-cap",
+      "url": "academy"
     },
     {
       "name": "GitHub",
       "icon": "github",
       "url": "https://github.com/TEKIMAX/tekimax-sdk"
+    },
+    {
+      "name": "Support",
+      "icon": "discord",
+      "url": "https://github.com/TEKIMAX/tekimax-sdk/issues"
     }
   ],
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Get Started",
       "pages": [
-        "docs/getting-started",
-        "docs/installation",
-        "docs/quickstart"
+        "introduction",
+        "quickstart",
+        "installation"
       ]
     },
     {
-      "group": "API Reference",
+      "group": "Core Concepts",
       "pages": [
-        "docs/api/overview",
-        "docs/api/client",
-        "docs/api/models",
-        "docs/api/embeddings",
-        "docs/api/tools"
+        "concepts/models",
+        "concepts/tokens",
+        "concepts/temperature",
+        "concepts/embeddings"
       ]
     },
     {
-      "group": "Guides",
+      "group": "AI Academy",
       "pages": [
-        "docs/guides/basic-usage",
-        "docs/guides/streaming",
-        "docs/guides/tool-calling",
-        "docs/guides/advanced-usage"
+        "academy/overview",
+        "academy/chapter-1-fundamentals",
+        "academy/chapter-2-parameters",
+        "academy/chapter-3-embeddings",
+        "academy/chapter-4-finetuning",
+        "academy/chapter-5-prompting"
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/client",
+        "api-reference/models",
+        "api-reference/embeddings",
+        "api-reference/tools"
+      ]
+    },
+    {
+      "group": "CLI Commands",
+      "pages": [
+        "cli/learn",
+        "cli/setup",
+        "cli/generate",
+        "cli/embed",
+        "cli/list"
       ]
     },
     {
       "group": "Examples",
       "pages": [
-        "docs/examples/chat",
-        "docs/examples/semantic-search",
-        "docs/examples/tool-example"
+        "examples/basic-generation",
+        "examples/streaming",
+        "examples/embeddings",
+        "examples/tool-calling"
       ]
     }
   ],
   "footerSocials": {
-    "github": "https://github.com/TEKIMAX/tekimax-sdk"
-  }
-} 
+    "github": "https://github.com/TEKIMAX/tekimax-sdk",
+    "twitter": "https://twitter.com/tekimax"
+  },
+  "backgroundImage": "/images/background.png",
+  "metadata": {
+    "og:title": "Tekimax SDK - Learn AI with GPT-OSS",
+    "og:description": "Interactive AI education platform with built-in AI Academy. Learn LLMs, transformers, embeddings, and more while building with GPT-OSS 20 & 120 models.",
+    "og:image": "https://raw.githubusercontent.com/TEKIMAX/tekimax-sdk/main/assets/tekimax-logo.png",
+    "twitter:card": "summary_large_image"
+  },
+  "search": {
+    "prompt": "Search documentation..."
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  },
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": false
+  },
+  "versions": ["v2", "v1"]
+}

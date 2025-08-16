@@ -1,0 +1,210 @@
+---
+title: 'Welcome to Tekimax SDK'
+description: 'Learn AI interactively with our built-in AI Academy while building with GPT-OSS models'
+icon: 'rocket'
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="Tekimax SDK Hero"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="Tekimax SDK Hero Dark"
+/>
+
+## 🎓 Learn AI, Build with GPT-OSS
+
+Tekimax SDK is more than just an SDK - it's a complete AI education platform with a built-in interactive AI Academy. Learn about LLMs, transformers, embeddings, and more through hands-on lessons, then immediately apply your knowledge with GPT-OSS 20 and 120 models.
+
+<CardGroup cols={2}>
+  <Card
+    title="AI Academy"
+    icon="graduation-cap"
+    href="/academy/overview"
+  >
+    Interactive learning platform with 5 comprehensive chapters
+  </Card>
+  <Card
+    title="Quick Start"
+    icon="play"
+    href="/quickstart"
+  >
+    Get up and running in under 5 minutes
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/overview"
+  >
+    Complete API documentation with examples
+  </Card>
+  <Card
+    title="CLI Commands"
+    icon="terminal"
+    href="/cli/learn"
+  >
+    Powerful CLI for learning and building
+  </Card>
+</CardGroup>
+
+## What's New in v2.0
+
+<AccordionGroup>
+  <Accordion title="🎓 AI Academy - Interactive Learning Platform" icon="graduation-cap">
+    - 5 comprehensive chapters covering AI fundamentals to advanced topics
+    - Interactive quizzes with immediate feedback
+    - Searchable content across all lessons
+    - Quick reference guides for common parameters
+    - Real-world examples and code snippets
+  </Accordion>
+
+  <Accordion title="🚀 GPT-OSS Model Optimization" icon="rocket">
+    - **GPT-OSS 20**: 20B parameters, 8K context window
+    - **GPT-OSS 120**: 120B parameters, 32K context window
+    - Model aliases for convenience (gpt20, gpt120, 20, 120)
+    - Smart defaults and configurations
+  </Accordion>
+
+  <Accordion title="🛠️ Enhanced CLI Experience" icon="terminal">
+    - `tekimax-sdk learn` - Launch AI Academy
+    - `tekimax-sdk setup` - Check environment setup
+    - Beautiful terminal UI with colors and formatting
+    - Helpful error messages and guidance
+  </Accordion>
+</AccordionGroup>
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install -g tekimax-sdk
+```
+
+```bash yarn
+yarn global add tekimax-sdk
+```
+
+```bash pnpm
+pnpm add -g tekimax-sdk
+```
+
+```bash bun
+bun add -g tekimax-sdk
+```
+
+</CodeGroup>
+
+## Start Learning in 30 Seconds
+
+<Steps>
+  <Step title="Install the SDK">
+    ```bash
+    npm install -g tekimax-sdk
+    ```
+  </Step>
+  <Step title="Launch AI Academy">
+    ```bash
+    tekimax-sdk learn
+    ```
+  </Step>
+  <Step title="Choose a Chapter">
+    Navigate through 5 chapters of interactive content
+  </Step>
+  <Step title="Take Quizzes">
+    Test your knowledge with interactive quizzes
+  </Step>
+</Steps>
+
+## Model Comparison
+
+| Feature | GPT-OSS 20 | GPT-OSS 120 |
+|---------|------------|-------------|
+| **Parameters** | 20B | 120B |
+| **Context Window** | 8,192 tokens | 32,768 tokens |
+| **Max Output** | 4,096 tokens | 16,384 tokens |
+| **Speed** | Fast | Slower |
+| **Quality** | Good | Excellent |
+| **Use Cases** | General tasks | Complex reasoning |
+
+## Quick Examples
+
+<Tabs>
+  <Tab title="Generate Text">
+    ```typescript
+    import { OllamaClient } from 'tekimax-sdk';
+
+    const client = new OllamaClient();
+    
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Explain quantum computing',
+      temperature: 0.7
+    });
+    
+    console.log(response.response);
+    ```
+  </Tab>
+  <Tab title="Create Embeddings">
+    ```typescript
+    const embedding = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: 'Convert this text to vectors'
+    });
+    
+    console.log(embedding.embeddings[0]);
+    ```
+  </Tab>
+  <Tab title="CLI Usage">
+    ```bash
+    # Generate text
+    tekimax-sdk generate -m gpt20 -p "Hello, AI!"
+    
+    # Create embeddings
+    tekimax-sdk embed -m gpt-oss-20 -p "Semantic search"
+    
+    # Check setup
+    tekimax-sdk setup
+    ```
+  </Tab>
+</Tabs>
+
+## Why Tekimax SDK?
+
+<CardGroup cols={3}>
+  <Card title="Educational" icon="book">
+    Built-in AI Academy teaches you everything about LLMs
+  </Card>
+  <Card title="Production Ready" icon="shield-check">
+    TypeScript, full types, error handling
+  </Card>
+  <Card title="Open Source" icon="github">
+    MIT licensed, community driven
+  </Card>
+</CardGroup>
+
+## Join Our Community
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub"
+    icon="github"
+    href="https://github.com/TEKIMAX/tekimax-sdk"
+  >
+    Star us on GitHub
+  </Card>
+  <Card
+    title="Issues"
+    icon="bug"
+    href="https://github.com/TEKIMAX/tekimax-sdk/issues"
+  >
+    Report bugs or request features
+  </Card>
+</CardGroup>
+
+<Note>
+  **Pro Tip**: Start with `tekimax-sdk learn` to understand AI concepts before diving into code!
+</Note>

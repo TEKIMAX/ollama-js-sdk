@@ -1,0 +1,254 @@
+---
+title: 'Quick Start'
+description: 'Get up and running with Tekimax SDK in 5 minutes'
+icon: 'bolt'
+---
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+<CardGroup cols={2}>
+  <Card title="Node.js 16+" icon="node-js">
+    Download from [nodejs.org](https://nodejs.org/)
+  </Card>
+  <Card title="Ollama" icon="server">
+    Download from [ollama.ai](https://ollama.ai/)
+  </Card>
+</CardGroup>
+
+## Installation
+
+Install Tekimax SDK globally to access the CLI from anywhere:
+
+<CodeGroup>
+
+```bash npm
+npm install -g tekimax-sdk
+```
+
+```bash yarn
+yarn global add tekimax-sdk
+```
+
+```bash pnpm
+pnpm add -g tekimax-sdk
+```
+
+</CodeGroup>
+
+## Step 1: Check Your Setup
+
+First, verify that everything is properly configured:
+
+```bash
+tekimax-sdk setup
+```
+
+This command will:
+- ✅ Check if Ollama is running
+- ✅ Verify available models
+- ✅ Suggest installation steps if needed
+
+<Note>
+  If Ollama is not running, start it with: `ollama serve`
+</Note>
+
+## Step 2: Launch AI Academy
+
+Start learning AI concepts interactively:
+
+```bash
+tekimax-sdk learn
+```
+
+<Frame>
+  <img src="/images/ai-academy-menu.png" alt="AI Academy Menu" />
+</Frame>
+
+Navigate through:
+- 📚 5 comprehensive chapters
+- 🎯 Interactive quizzes
+- 🔍 Searchable content
+- 💡 Real-world examples
+
+## Step 3: Your First Generation
+
+Generate text using GPT-OSS models:
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    # Using default GPT-OSS 20
+    tekimax-sdk generate -p "Explain neural networks"
+    
+    # Using GPT-OSS 120
+    tekimax-sdk generate -m gpt-oss-120 -p "Write a poem about AI"
+    
+    # Using model alias
+    tekimax-sdk generate -m gpt20 -p "Hello, world!"
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import { OllamaClient } from 'tekimax-sdk';
+    
+    const client = new OllamaClient({
+      baseUrl: 'http://localhost:11434'
+    });
+    
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Explain neural networks',
+      temperature: 0.7
+    });
+    
+    console.log(response.response);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```javascript
+    const { OllamaClient } = require('tekimax-sdk');
+    
+    const client = new OllamaClient({
+      baseUrl: 'http://localhost:11434'
+    });
+    
+    client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Explain neural networks',
+      temperature: 0.7
+    }).then(response => {
+      console.log(response.response);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Step 4: Create Embeddings
+
+Convert text to vector representations:
+
+<CodeGroup>
+
+```bash CLI
+tekimax-sdk embed -m gpt-oss-20 -p "Semantic search query"
+```
+
+```typescript TypeScript
+const embedding = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Semantic search query'
+});
+
+console.log(`Dimensions: ${embedding.embeddings[0].length}`);
+```
+
+</CodeGroup>
+
+## Step 5: Explore Parameters
+
+Experiment with different generation parameters:
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Write a story',
+  temperature: 0.9,      // Higher = more creative
+  top_p: 0.95,          // Nucleus sampling
+  top_k: 40,            // Vocabulary limit
+  max_tokens: 500       // Output length
+});
+```
+
+<Accordion title="Parameter Guide">
+  | Parameter | Range | Description |
+  |-----------|-------|-------------|
+  | `temperature` | 0.0-2.0 | Controls randomness (0=deterministic, 1=balanced) |
+  | `top_p` | 0.0-1.0 | Nucleus sampling threshold |
+  | `top_k` | 1-100 | Limits vocabulary to top K tokens |
+  | `max_tokens` | 1-4096 | Maximum output length |
+</Accordion>
+
+## Common Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Text Generation" icon="pen">
+    ```bash
+    tekimax-sdk generate -m gpt20 \
+      -p "Write a blog post about AI"
+    ```
+  </Card>
+  <Card title="Code Generation" icon="code">
+    ```bash
+    tekimax-sdk generate -m gpt20 \
+      -p "Write a Python function to sort a list" \
+      -t 0.2
+    ```
+  </Card>
+  <Card title="Semantic Search" icon="search">
+    ```bash
+    tekimax-sdk embed -m gpt20 \
+      -p "Find similar documents"
+    ```
+  </Card>
+  <Card title="Creative Writing" icon="sparkles">
+    ```bash
+    tekimax-sdk generate -m gpt120 \
+      -p "Write a sci-fi story" \
+      -t 0.9
+    ```
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Ollama is not running">
+    Start Ollama with:
+    ```bash
+    ollama serve
+    ```
+  </Accordion>
+  <Accordion title="Model not found">
+    Pull a model first:
+    ```bash
+    ollama pull llama2
+    ```
+    Then create an alias for GPT-OSS:
+    ```bash
+    echo "FROM llama2" > Modelfile
+    ollama create gpt-oss-20 -f Modelfile
+    ```
+  </Accordion>
+  <Accordion title="Connection refused">
+    Check if Ollama is running on the correct port:
+    ```bash
+    curl http://localhost:11434/api/tags
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Complete AI Academy">
+    Learn all AI concepts through interactive lessons:
+    ```bash
+    tekimax-sdk learn
+    ```
+  </Step>
+  <Step title="Read API Documentation">
+    Explore the complete [API Reference](/api-reference/overview)
+  </Step>
+  <Step title="View Examples">
+    Check out [practical examples](/examples/basic-generation)
+  </Step>
+  <Step title="Join Community">
+    Star us on [GitHub](https://github.com/TEKIMAX/tekimax-sdk)
+  </Step>
+</Steps>
+
+<Tip>
+  **Pro Tip**: Use `tekimax-sdk help` to see all available commands and options!
+</Tip>
