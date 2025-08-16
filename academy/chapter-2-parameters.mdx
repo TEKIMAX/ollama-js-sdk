@@ -1,0 +1,435 @@
+---
+title: 'Chapter 2: Model Parameters'
+description: 'Understanding temperature, top-p, context windows, and other generation parameters'
+icon: 'sliders'
+---
+
+# Model Parameters
+
+Learn how to control AI model behavior through parameters. These settings dramatically affect the quality, creativity, and consistency of generated text.
+
+## 📚 Lessons in This Chapter
+
+<CardGroup cols={3}>
+  <Card title="Temperature" icon="temperature-high">
+    Control randomness and creativity
+  </Card>
+  <Card title="Context Windows" icon="window-maximize">
+    Understanding model memory
+  </Card>
+  <Card title="Sampling Methods" icon="dice">
+    Top-P and Top-K explained
+  </Card>
+</CardGroup>
+
+## Lesson 1: Temperature - Controlling Randomness
+
+### What is Temperature?
+
+Temperature is the most important parameter for controlling the randomness and creativity of model outputs. It affects how the model selects the next token during generation.
+
+### Temperature Scale
+
+<Tabs>
+  <Tab title="Visual Scale">
+    ```
+    0.0 ────────────────────────────────────── 2.0
+    ↑                    ↑                      ↑
+    Deterministic    Balanced            Very Random
+    ```
+  </Tab>
+  <Tab title="Detailed Ranges">
+    - **0.0**: Always picks most likely token
+    - **0.1-0.3**: Very focused, factual
+    - **0.4-0.7**: Balanced (default: 0.7)
+    - **0.8-1.0**: Creative, varied
+    - **1.0+**: Very random, potentially incoherent
+  </Tab>
+</Tabs>
+
+### Use Cases by Temperature
+
+<AccordionGroup>
+  <Accordion title="Low Temperature (0.1-0.3)" icon="snowflake">
+    **Best for:**
+    - Code generation
+    - Factual Q&A
+    - Data extraction
+    - Technical documentation
+    - Mathematical problems
+    
+    ```typescript
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'What is 2 + 2?',
+      temperature: 0.1  // Very deterministic
+    });
+    // Output: "4" (always)
+    ```
+  </Accordion>
+  
+  <Accordion title="Medium Temperature (0.4-0.7)" icon="cloud-sun">
+    **Best for:**
+    - General conversation
+    - Email writing
+    - Summaries
+    - Explanations
+    - Balanced content
+    
+    ```typescript
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Explain photosynthesis',
+      temperature: 0.7  // Default, balanced
+    });
+    // Output: Clear explanation with some variety
+    ```
+  </Accordion>
+  
+  <Accordion title="High Temperature (0.8-1.0)" icon="fire">
+    **Best for:**
+    - Creative writing
+    - Brainstorming
+    - Poetry
+    - Story generation
+    - Diverse ideas
+    
+    ```typescript
+    const response = await client.models.generate({
+      model: 'gpt-oss-20',
+      prompt: 'Write a creative story opening',
+      temperature: 0.9  // Creative and varied
+    });
+    // Output: Unique, creative responses each time
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Mathematical Explanation
+
+Temperature modifies the probability distribution:
+- **Lower T**: Sharpens distribution (peaks become more pronounced)
+- **Higher T**: Flattens distribution (more options become viable)
+
+```python
+# Probability distribution example
+# Original probabilities for next token:
+"the": 0.6, "a": 0.2, "an": 0.1, "that": 0.1
+
+# With temperature = 0.5 (lower):
+"the": 0.85, "a": 0.10, "an": 0.03, "that": 0.02
+
+# With temperature = 1.5 (higher):
+"the": 0.4, "a": 0.25, "an": 0.2, "that": 0.15
+```
+
+## Lesson 2: Context Windows
+
+### What is a Context Window?
+
+The context window is the maximum number of tokens a model can process at once. It represents the model's "working memory."
+
+### GPT-OSS Context Windows
+
+<CardGroup cols={2}>
+  <Card title="GPT-OSS 20" icon="window-restore">
+    **8,192 tokens**
+    - ~6,000 words
+    - ~12 pages of text
+    - Good for most tasks
+  </Card>
+  <Card title="GPT-OSS 120" icon="window-maximize">
+    **32,768 tokens**
+    - ~24,000 words
+    - ~50 pages of text
+    - Ideal for long documents
+  </Card>
+</CardGroup>
+
+### What Fits in Each Context?
+
+<Tabs>
+  <Tab title="GPT-OSS 20 (8K)">
+    - ✅ Multiple code files
+    - ✅ Short stories
+    - ✅ Extended conversations
+    - ✅ Several blog posts
+    - ✅ API documentation
+    - ❌ Full novels
+    - ❌ Large codebases
+  </Tab>
+  <Tab title="GPT-OSS 120 (32K)">
+    - ✅ Small book chapters
+    - ✅ Complete codebases
+    - ✅ Long technical documents
+    - ✅ Multiple research papers
+    - ✅ Extensive conversations
+    - ✅ Full documentation sets
+    - ❌ Entire books
+  </Tab>
+</Tabs>
+
+### Context Window Strategies
+
+<Steps>
+  <Step title="Chunking">
+    Break large documents into smaller pieces
+    ```typescript
+    const chunks = splitDocument(longText, 6000); // words
+    for (const chunk of chunks) {
+      await processChunk(chunk);
+    }
+    ```
+  </Step>
+  <Step title="Summarization">
+    Compress information to fit context
+    ```typescript
+    const summary = await summarize(longDocument);
+    const response = await generate(summary);
+    ```
+  </Step>
+  <Step title="Sliding Window">
+    Move context window through document
+    ```typescript
+    const window = createSlidingWindow(text, 8000);
+    while (window.hasNext()) {
+      await process(window.next());
+    }
+    ```
+  </Step>
+  <Step title="Hierarchical Processing">
+    Process sections, then combine results
+    ```typescript
+    const sections = await processSections(document);
+    const final = await combineResults(sections);
+    ```
+  </Step>
+</Steps>
+
+### Important Context Considerations
+
+<Warning>
+  **Context Limitations:**
+  - Exceeding context = information loss
+  - Recent context has more influence
+  - Longer context = slower processing
+  - Cost increases with token usage
+</Warning>
+
+## Lesson 3: Top-P and Top-K Sampling
+
+### Top-P (Nucleus Sampling)
+
+Top-P controls diversity by limiting the cumulative probability of tokens considered.
+
+<Card title="How Top-P Works" icon="chart-pie">
+  1. Order tokens by probability (highest first)
+  2. Sum probabilities until reaching P threshold
+  3. Sample only from this "nucleus" of tokens
+  4. Redistribute probabilities within nucleus
+</Card>
+
+### Top-P Values and Effects
+
+| Top-P | Description | Use Case |
+|-------|-------------|----------|
+| **0.1** | Very narrow (10% most likely) | Extremely focused |
+| **0.5** | Moderate diversity (50% most likely) | Controlled variation |
+| **0.9** | Wide selection (90% most likely) | Natural diversity |
+| **1.0** | All tokens considered | Maximum variety |
+
+```typescript
+// Example: Different Top-P values
+const focused = await generate({
+  prompt: "The best programming language is",
+  top_p: 0.1  // Likely: "Python" or "JavaScript"
+});
+
+const diverse = await generate({
+  prompt: "The best programming language is",
+  top_p: 0.9  // Could be many different languages
+});
+```
+
+### Top-K Sampling
+
+Top-K limits selection to the K most likely tokens.
+
+<Tabs>
+  <Tab title="How It Works">
+    1. Select K highest probability tokens
+    2. Zero out all other probabilities
+    3. Redistribute probabilities among K tokens
+    4. Sample from this subset
+  </Tab>
+  <Tab title="Common Values">
+    - **K=1**: Always pick most likely (greedy)
+    - **K=10**: Very focused selection
+    - **K=40**: Balanced (default)
+    - **K=100**: More variety
+    - **K=∞**: No limit (consider all)
+  </Tab>
+</Tabs>
+
+### Combining Parameters
+
+Best results often come from combining multiple parameters:
+
+<CodeGroup>
+
+```typescript Factual
+// For factual, consistent output
+{
+  temperature: 0.3,
+  top_p: 0.5,
+  top_k: 10
+}
+```
+
+```typescript Balanced
+// For general use (default)
+{
+  temperature: 0.7,
+  top_p: 0.9,
+  top_k: 40
+}
+```
+
+```typescript Creative
+// For creative writing
+{
+  temperature: 0.9,
+  top_p: 0.95,
+  top_k: 80
+}
+```
+
+</CodeGroup>
+
+## Other Important Parameters
+
+### Max Tokens
+
+Controls the maximum length of generated output.
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Write a story',
+  max_tokens: 500  // Limit output length
+});
+```
+
+### Stop Sequences
+
+Define strings that will stop generation when encountered.
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'List three items:',
+  stop: ['\n\n', 'END', '4.']  // Stop at these sequences
+});
+```
+
+### Frequency and Presence Penalty
+
+Reduce repetition in outputs:
+- **Frequency Penalty**: Reduces tokens based on frequency
+- **Presence Penalty**: Reduces tokens that have appeared at all
+
+## Practical Examples
+
+### Example 1: Code Generation
+
+```typescript
+// Optimal settings for code generation
+const codeResponse = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Write a Python function to sort a list',
+  temperature: 0.2,      // Low for accuracy
+  top_p: 0.5,           // Focused selection
+  top_k: 20,            // Limited vocabulary
+  max_tokens: 200       // Reasonable function length
+});
+```
+
+### Example 2: Creative Writing
+
+```typescript
+// Settings for creative story writing
+const storyResponse = await client.models.generate({
+  model: 'gpt-oss-120',
+  prompt: 'Write a science fiction story opening',
+  temperature: 0.85,     // High creativity
+  top_p: 0.95,          // Wide selection
+  top_k: 60,            // Varied vocabulary
+  max_tokens: 1000      // Longer output
+});
+```
+
+### Example 3: Q&A System
+
+```typescript
+// Settings for factual Q&A
+const answer = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'What is the capital of France?',
+  temperature: 0.1,      // Very deterministic
+  top_p: 0.3,           // Narrow focus
+  top_k: 5,             // Very limited options
+  max_tokens: 50        // Short answer
+});
+```
+
+## Parameter Cheat Sheet
+
+<Card title="Quick Reference Guide" icon="bookmark">
+  **For Code**: temp=0.2, top_p=0.5, top_k=20
+  **For Facts**: temp=0.1, top_p=0.3, top_k=10
+  **For Chat**: temp=0.7, top_p=0.9, top_k=40
+  **For Creative**: temp=0.9, top_p=0.95, top_k=80
+  **For Brainstorm**: temp=1.0, top_p=1.0, top_k=100
+</Card>
+
+## Quiz Questions
+
+1. **What temperature gives most creative output?**
+   - 0.1
+   - 0.5
+   - 0.9 ✓
+
+2. **What is GPT-OSS 120's context window?**
+   - 8,192 tokens
+   - 16,384 tokens
+   - 32,768 tokens ✓
+
+3. **What does Top-P=0.9 mean?**
+   - Use 90 tokens
+   - Sample from 90% cumulative probability ✓
+   - Set temperature to 0.9
+
+## Key Takeaways
+
+<Steps>
+  <Step title="Temperature Controls Creativity">
+    Lower = consistent, Higher = creative
+  </Step>
+  <Step title="Context Windows Limit Input">
+    Choose model based on document size
+  </Step>
+  <Step title="Sampling Methods Add Control">
+    Top-P and Top-K fine-tune output diversity
+  </Step>
+  <Step title="Combine Parameters">
+    Best results from balanced combinations
+  </Step>
+</Steps>
+
+## Next Chapter
+
+Ready to learn about embeddings? Continue to [Chapter 3: Embeddings & Vectors](/academy/chapter-3-embeddings) →
+
+<Tip>
+  **Experiment**: Try the same prompt with different temperature values to see the effect!
+</Tip>

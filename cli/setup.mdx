@@ -1,0 +1,314 @@
+---
+title: 'setup'
+description: 'Check and configure your Ollama and model setup'
+icon: 'wrench'
+---
+
+# tekimax-sdk setup
+
+Check your Ollama connection, verify model availability, and get setup guidance.
+
+## Usage
+
+```bash
+tekimax-sdk setup
+```
+
+## Description
+
+The `setup` command performs a comprehensive check of your environment:
+- Verifies Ollama is running
+- Checks for GPT-OSS models
+- Provides installation instructions
+- Suggests alternatives if models aren't found
+
+## What It Checks
+
+<Steps>
+  <Step title="Ollama Connection">
+    Verifies Ollama server is running and accessible
+  </Step>
+  <Step title="Model Availability">
+    Checks for GPT-OSS 20 and GPT-OSS 120 models
+  </Step>
+  <Step title="Alternative Models">
+    Lists other available models on your system
+  </Step>
+  <Step title="Setup Guidance">
+    Provides specific instructions based on findings
+  </Step>
+</Steps>
+
+## Example Output
+
+### ✅ Everything Working
+
+```bash
+$ tekimax-sdk setup
+
+🚀 GPT-OSS Model Setup Guide
+════════════════════════════════════════════════════════════
+✅ Ollama is running!
+
+📦 Model Status:
+────────────────────────────────────────
+✅ GPT-OSS 20 is available
+✅ GPT-OSS 120 is available
+
+Ready to use! Try:
+  tekimax-sdk generate -m gpt-oss-20 -p "Hello!"
+════════════════════════════════════════════════════════════
+```
+
+### ⚠️ Ollama Not Running
+
+```bash
+$ tekimax-sdk setup
+
+🚀 GPT-OSS Model Setup Guide
+════════════════════════════════════════════════════════════
+❌ Cannot connect to Ollama
+
+📋 To use this SDK, you need Ollama running:
+
+1. Install Ollama:
+   Visit https://ollama.ai to download
+
+2. Start Ollama:
+   Run: ollama serve
+
+3. Pull GPT-OSS models:
+   ollama pull gpt-oss-20
+   ollama pull gpt-oss-120
+════════════════════════════════════════════════════════════
+```
+
+### ⚠️ Models Not Found
+
+```bash
+$ tekimax-sdk setup
+
+🚀 GPT-OSS Model Setup Guide
+════════════════════════════════════════════════════════════
+✅ Ollama is running!
+
+📦 Model Status:
+────────────────────────────────────────
+⚠️ GPT-OSS 20 not found
+⚠️ GPT-OSS 120 not found
+
+📥 To install GPT-OSS models:
+
+Option 1: Use existing Ollama models
+  ollama pull llama2:7b
+  ollama pull mixtral
+
+Option 2: Create model aliases
+  Create a Modelfile with:
+  FROM llama2:7b
+  Then: ollama create gpt-oss-20 -f Modelfile
+
+🎓 Or try the AI Academy first:
+  tekimax-sdk learn
+  Learn about LLMs before running models!
+════════════════════════════════════════════════════════════
+```
+
+## Setup Instructions
+
+### Installing Ollama
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    # Download installer
+    curl -fsSL https://ollama.ai/install.sh | sh
+    
+    # Or with Homebrew
+    brew install ollama
+    
+    # Start Ollama
+    ollama serve
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```bash
+    # Download and install
+    curl -fsSL https://ollama.ai/install.sh | sh
+    
+    # Start Ollama
+    ollama serve
+    ```
+  </Tab>
+  <Tab title="Windows">
+    1. Download from [ollama.ai](https://ollama.ai)
+    2. Run the installer
+    3. Start Ollama from the system tray
+  </Tab>
+</Tabs>
+
+### Creating Model Aliases
+
+If you have existing Ollama models, create GPT-OSS aliases:
+
+```bash
+# Create GPT-OSS 20 from llama2
+echo "FROM llama2:7b" > Modelfile
+ollama create gpt-oss-20 -f Modelfile
+
+# Create GPT-OSS 120 from mixtral
+echo "FROM mixtral" > Modelfile
+ollama create gpt-oss-120 -f Modelfile
+```
+
+### Using Alternative Models
+
+The setup command will list available models:
+
+```bash
+📌 Available models on your system:
+  • llama2:7b
+  • codellama
+  • mistral
+
+💡 You can use these models with:
+  tekimax-sdk generate -m llama2:7b -p "Your prompt"
+```
+
+## Configuration Options
+
+### Custom Ollama Host
+
+If Ollama runs on a different host:
+
+```bash
+tekimax-sdk setup --host http://remote-server:11434
+```
+
+### Environment Variables
+
+Set default configuration:
+
+```bash
+export OLLAMA_HOST=http://localhost:11434
+export DEFAULT_MODEL=gpt-oss-20
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection Refused" icon="x">
+    **Problem**: Cannot connect to Ollama
+    
+    **Solutions**:
+    - Start Ollama: `ollama serve`
+    - Check port: `curl http://localhost:11434/api/tags`
+    - Check firewall settings
+  </Accordion>
+  
+  <Accordion title="Model Not Found" icon="search">
+    **Problem**: GPT-OSS models not available
+    
+    **Solutions**:
+    - Pull a base model: `ollama pull llama2`
+    - Create alias (see instructions above)
+    - Use existing models directly
+  </Accordion>
+  
+  <Accordion title="Permission Denied" icon="lock">
+    **Problem**: Cannot access Ollama
+    
+    **Solutions**:
+    - Check user permissions
+    - Run with appropriate privileges
+    - Check Ollama installation
+  </Accordion>
+</AccordionGroup>
+
+## What Happens During Setup
+
+<Card title="Setup Process" icon="list-check">
+  1. **Connection Test**: Ping Ollama server
+  2. **Model List**: Fetch available models
+  3. **GPT-OSS Check**: Look for specific models
+  4. **Alternative Search**: Find usable models
+  5. **Report Generation**: Display findings
+  6. **Guidance**: Provide next steps
+</Card>
+
+## After Setup
+
+Once setup is complete, you can:
+
+<CardGroup cols={3}>
+  <Card title="Learn AI" icon="graduation-cap" href="/cli/learn">
+    Start AI Academy
+  </Card>
+  <Card title="Generate Text" icon="pen" href="/cli/generate">
+    Use GPT-OSS models
+  </Card>
+  <Card title="Create Embeddings" icon="vector-square" href="/cli/embed">
+    Generate vectors
+  </Card>
+</CardGroup>
+
+## Flags and Options
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--host, -h` | Specify Ollama host | `--host http://192.168.1.100:11434` |
+| `--verbose, -v` | Show detailed output | `-v` |
+| `--json` | Output in JSON format | `--json` |
+
+## JSON Output
+
+For scripting and automation:
+
+```bash
+tekimax-sdk setup --json
+```
+
+```json
+{
+  "ollama": {
+    "connected": true,
+    "version": "0.1.17",
+    "host": "http://localhost:11434"
+  },
+  "models": {
+    "gpt-oss-20": false,
+    "gpt-oss-120": false,
+    "available": ["llama2:7b", "mistral"]
+  },
+  "ready": false,
+  "suggestions": [
+    "Pull llama2 model",
+    "Create GPT-OSS aliases"
+  ]
+}
+```
+
+## Best Practices
+
+<Note>
+  **Recommendations:**
+  - Run setup after installing the SDK
+  - Check setup before starting projects
+  - Keep Ollama updated
+  - Use model aliases for consistency
+</Note>
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="list" icon="list" href="/cli/list">
+    List all available models
+  </Card>
+  <Card title="help" icon="question" href="/cli/help">
+    Show all commands
+  </Card>
+</CardGroup>
+
+<Tip>
+  Always run `tekimax-sdk setup` first to ensure everything is configured correctly!
+</Tip>

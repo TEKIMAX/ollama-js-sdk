@@ -1,0 +1,473 @@
+---
+title: 'Chapter 3: Embeddings & Vectors'
+description: 'Understanding text embeddings, vector representations, and semantic similarity'
+icon: 'vector-square'
+---
+
+# Embeddings & Vectors
+
+Learn how AI converts text into numerical representations that capture meaning, enabling semantic search, similarity matching, and more.
+
+## 📚 Lessons in This Chapter
+
+<CardGroup cols={2}>
+  <Card title="What are Embeddings?" icon="cube">
+    Converting text to numbers
+  </Card>
+  <Card title="Semantic Similarity" icon="equals">
+    Finding related content
+  </Card>
+</CardGroup>
+
+## Lesson 1: What are Embeddings?
+
+### Definition
+
+**Embeddings** are numerical representations of text that capture semantic meaning. They convert words, sentences, or documents into vectors (arrays of numbers) that machines can understand and compare.
+
+### How Embeddings Work
+
+<Steps>
+  <Step title="Text Input">
+    Start with text: "Machine learning is fascinating"
+  </Step>
+  <Step title="Tokenization">
+    Break into tokens: ["Machine", " learning", " is", " fascinating"]
+  </Step>
+  <Step title="Neural Processing">
+    Pass through neural network layers
+  </Step>
+  <Step title="Vector Output">
+    Get vector: [0.23, -0.45, 0.67, ..., 0.12]
+  </Step>
+</Steps>
+
+### Embedding Dimensions
+
+<Tabs>
+  <Tab title="GPT-OSS 20">
+    **4,096 dimensions**
+    - Each dimension captures different aspects
+    - Balanced between detail and efficiency
+    - ~16KB per embedding
+  </Tab>
+  <Tab title="GPT-OSS 120">
+    **8,192 dimensions**
+    - More nuanced representations
+    - Better for complex comparisons
+    - ~32KB per embedding
+  </Tab>
+</Tabs>
+
+### Visual Representation
+
+```
+Text: "cat"     → Vector: [0.2, -0.5, 0.8, ...]
+Text: "kitten"  → Vector: [0.3, -0.4, 0.7, ...]
+Text: "dog"     → Vector: [0.1, -0.3, 0.9, ...]
+Text: "car"     → Vector: [-0.8, 0.2, -0.1, ...]
+
+Similar meanings = Similar vectors
+"cat" ≈ "kitten" (close in vector space)
+"cat" ≠ "car" (far in vector space)
+```
+
+### Creating Embeddings with Tekimax SDK
+
+<CodeGroup>
+
+```typescript Basic
+import { OllamaClient } from 'tekimax-sdk';
+
+const client = new OllamaClient();
+
+// Create single embedding
+const result = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Artificial intelligence'
+});
+
+console.log(result.embeddings[0]); // Array of 4096 numbers
+```
+
+```typescript Batch
+// Create multiple embeddings at once
+const result = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: [
+    'Machine learning',
+    'Deep learning',
+    'Neural networks'
+  ]
+});
+
+// Returns array of embeddings
+result.embeddings.forEach((emb, i) => {
+  console.log(`Embedding ${i}: ${emb.length} dimensions`);
+});
+```
+
+```bash CLI
+# Create embedding from command line
+tekimax-sdk embed -m gpt-oss-20 -p "Natural language processing"
+```
+
+</CodeGroup>
+
+## Lesson 2: Semantic Similarity
+
+### Understanding Similarity
+
+Semantic similarity measures how related two pieces of text are in meaning, not just in words used.
+
+### Cosine Similarity
+
+The most common way to measure similarity between embeddings:
+
+<Card title="Cosine Similarity Scale" icon="ruler">
+  - **1.0**: Identical meaning
+  - **0.8-0.9**: Very similar
+  - **0.5-0.7**: Somewhat related
+  - **0.2-0.4**: Loosely related
+  - **0.0**: Unrelated
+  - **-1.0**: Opposite meaning
+</Card>
+
+### Calculating Similarity
+
+```typescript
+import { OllamaClient } from 'tekimax-sdk';
+
+const client = new OllamaClient();
+
+// Create embeddings for two texts
+const embedding1 = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Dogs are loyal pets'
+});
+
+const embedding2 = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Canines make faithful companions'
+});
+
+// Calculate similarity
+const similarity = client.embeddings.calculateCosineSimilarity(
+  embedding1.embeddings[0],
+  embedding2.embeddings[0]
+);
+
+console.log(`Similarity: ${similarity}`); // ~0.85 (very similar)
+```
+
+### Similarity Examples
+
+<Tabs>
+  <Tab title="High Similarity">
+    ```
+    Text 1: "The weather is beautiful today"
+    Text 2: "It's a lovely day outside"
+    Similarity: ~0.82
+    
+    Text 1: "Python programming"
+    Text 2: "Python coding"
+    Similarity: ~0.91
+    ```
+  </Tab>
+  <Tab title="Medium Similarity">
+    ```
+    Text 1: "Machine learning"
+    Text 2: "Artificial intelligence"
+    Similarity: ~0.65
+    
+    Text 1: "Coffee shop"
+    Text 2: "Restaurant"
+    Similarity: ~0.58
+    ```
+  </Tab>
+  <Tab title="Low Similarity">
+    ```
+    Text 1: "Computer science"
+    Text 2: "Ocean biology"
+    Similarity: ~0.15
+    
+    Text 1: "Happy birthday"
+    Text 2: "Quantum physics"
+    Similarity: ~0.08
+    ```
+  </Tab>
+</Tabs>
+
+## Applications of Embeddings
+
+### 1. Semantic Search
+
+Find documents by meaning, not just keywords:
+
+```typescript
+// Build semantic search system
+async function semanticSearch(query: string, documents: string[]) {
+  // Get query embedding
+  const queryEmb = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: query
+  });
+  
+  // Get document embeddings
+  const docEmbs = await client.embeddings.create({
+    model: 'gpt-oss-20',
+    input: documents
+  });
+  
+  // Calculate similarities
+  const similarities = docEmbs.embeddings.map(docEmb => 
+    client.embeddings.calculateCosineSimilarity(
+      queryEmb.embeddings[0],
+      docEmb
+    )
+  );
+  
+  // Sort by similarity
+  return documents
+    .map((doc, i) => ({ doc, similarity: similarities[i] }))
+    .sort((a, b) => b.similarity - a.similarity);
+}
+```
+
+### 2. Document Clustering
+
+Group similar documents together:
+
+```typescript
+// Group documents by similarity
+function clusterDocuments(embeddings: number[][], threshold = 0.7) {
+  const clusters = [];
+  
+  for (let i = 0; i < embeddings.length; i++) {
+    let added = false;
+    
+    for (const cluster of clusters) {
+      const similarity = calculateSimilarity(
+        embeddings[i],
+        cluster.centroid
+      );
+      
+      if (similarity > threshold) {
+        cluster.members.push(i);
+        added = true;
+        break;
+      }
+    }
+    
+    if (!added) {
+      clusters.push({
+        centroid: embeddings[i],
+        members: [i]
+      });
+    }
+  }
+  
+  return clusters;
+}
+```
+
+### 3. Recommendation Systems
+
+Find similar content:
+
+```typescript
+// Recommend similar articles
+async function recommendArticles(currentArticle: string, allArticles: string[]) {
+  const current = await getEmbedding(currentArticle);
+  const all = await getEmbeddings(allArticles);
+  
+  const similarities = all.map(emb => 
+    calculateSimilarity(current, emb)
+  );
+  
+  return allArticles
+    .map((article, i) => ({
+      article,
+      similarity: similarities[i]
+    }))
+    .filter(item => item.similarity > 0.6)
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, 5); // Top 5 recommendations
+}
+```
+
+### 4. Duplicate Detection
+
+Find similar or duplicate content:
+
+```typescript
+// Detect duplicate questions
+async function findDuplicates(questions: string[], threshold = 0.85) {
+  const embeddings = await getEmbeddings(questions);
+  const duplicates = [];
+  
+  for (let i = 0; i < embeddings.length; i++) {
+    for (let j = i + 1; j < embeddings.length; j++) {
+      const similarity = calculateSimilarity(
+        embeddings[i],
+        embeddings[j]
+      );
+      
+      if (similarity > threshold) {
+        duplicates.push({
+          indices: [i, j],
+          similarity,
+          questions: [questions[i], questions[j]]
+        });
+      }
+    }
+  }
+  
+  return duplicates;
+}
+```
+
+## Vector Operations
+
+### Euclidean Distance
+
+Alternative to cosine similarity:
+
+```typescript
+function euclideanDistance(vec1: number[], vec2: number[]): number {
+  let sum = 0;
+  for (let i = 0; i < vec1.length; i++) {
+    sum += Math.pow(vec1[i] - vec2[i], 2);
+  }
+  return Math.sqrt(sum);
+}
+
+// Smaller distance = more similar
+```
+
+### Dot Product
+
+Raw similarity measure:
+
+```typescript
+function dotProduct(vec1: number[], vec2: number[]): number {
+  let sum = 0;
+  for (let i = 0; i < vec1.length; i++) {
+    sum += vec1[i] * vec2[i];
+  }
+  return sum;
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Normalize Your Data" icon="balance-scale">
+    Ensure consistent text formatting before creating embeddings
+  </Accordion>
+  <Accordion title="Batch Processing" icon="layer-group">
+    Process multiple texts at once for efficiency
+  </Accordion>
+  <Accordion title="Cache Embeddings" icon="database">
+    Store embeddings to avoid recomputation
+  </Accordion>
+  <Accordion title="Choose Right Model" icon="robot">
+    Use GPT-OSS 20 for speed, GPT-OSS 120 for accuracy
+  </Accordion>
+</AccordionGroup>
+
+## Practical Example: Building a Q&A System
+
+```typescript
+class QASystem {
+  private questions: string[];
+  private answers: string[];
+  private embeddings: number[][];
+  
+  async initialize(qaP pairs: {q: string, a: string}[]) {
+    this.questions = pairs.map(p => p.q);
+    this.answers = pairs.map(p => p.a);
+    
+    // Pre-compute question embeddings
+    const result = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: this.questions
+    });
+    
+    this.embeddings = result.embeddings;
+  }
+  
+  async findAnswer(query: string): Promise<string> {
+    // Get query embedding
+    const queryEmb = await client.embeddings.create({
+      model: 'gpt-oss-20',
+      input: query
+    });
+    
+    // Find most similar question
+    let maxSimilarity = -1;
+    let bestIndex = -1;
+    
+    for (let i = 0; i < this.embeddings.length; i++) {
+      const similarity = client.embeddings.calculateCosineSimilarity(
+        queryEmb.embeddings[0],
+        this.embeddings[i]
+      );
+      
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+        bestIndex = i;
+      }
+    }
+    
+    // Return answer if similarity is high enough
+    if (maxSimilarity > 0.7) {
+      return this.answers[bestIndex];
+    } else {
+      return "I don't have an answer for that question.";
+    }
+  }
+}
+```
+
+## Quiz Questions
+
+1. **What are embeddings?**
+   - Numerical vectors representing text meaning ✓
+   - Compressed text files
+   - Database indices
+
+2. **What does cosine similarity of 0.9 indicate?**
+   - Very similar meanings ✓
+   - Completely different
+   - Identical text
+
+3. **How many dimensions in GPT-OSS 20 embeddings?**
+   - 2,048
+   - 4,096 ✓
+   - 8,192
+
+## Key Takeaways
+
+<Steps>
+  <Step title="Embeddings Capture Meaning">
+    Convert text to vectors that represent semantic content
+  </Step>
+  <Step title="Similarity is Measurable">
+    Use cosine similarity to find related content
+  </Step>
+  <Step title="Many Applications">
+    Search, clustering, recommendations, and more
+  </Step>
+  <Step title="Efficient Processing">
+    Pre-compute and cache embeddings for speed
+  </Step>
+</Steps>
+
+## Next Chapter
+
+Ready to learn about fine-tuning? Continue to [Chapter 4: Fine-Tuning & Training](/academy/chapter-4-finetuning) →
+
+<Tip>
+  **Try It**: Create embeddings for your favorite topics and measure their similarity!
+</Tip>

@@ -1,0 +1,286 @@
+---
+title: 'API Reference Overview'
+description: 'Complete API documentation for Tekimax SDK'
+icon: 'code'
+---
+
+# API Reference
+
+Complete documentation for the Tekimax SDK API, optimized for GPT-OSS 20 and 120 models.
+
+## Core Components
+
+<CardGroup cols={2}>
+  <Card title="OllamaClient" icon="server" href="/api-reference/client">
+    Main client for API interactions
+  </Card>
+  <Card title="ModelManager" icon="robot" href="/api-reference/models">
+    Text generation and model operations
+  </Card>
+  <Card title="EmbeddingsManager" icon="vector-square" href="/api-reference/embeddings">
+    Create and compare embeddings
+  </Card>
+  <Card title="ToolsManager" icon="wrench" href="/api-reference/tools">
+    Function calling and tools
+  </Card>
+</CardGroup>
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install tekimax-sdk
+```
+
+```bash yarn
+yarn add tekimax-sdk
+```
+
+```typescript import
+import { OllamaClient } from 'tekimax-sdk';
+```
+
+</CodeGroup>
+
+## Quick Start
+
+```typescript
+import { OllamaClient, SUPPORTED_MODELS } from 'tekimax-sdk';
+
+// Initialize client
+const client = new OllamaClient({
+  baseUrl: 'http://localhost:11434'
+});
+
+// Generate text
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Hello, AI!'
+});
+
+// Create embeddings
+const embedding = await client.embeddings.create({
+  model: 'gpt-oss-20',
+  input: 'Text to embed'
+});
+```
+
+## Supported Models
+
+The SDK is optimized for two GPT-OSS models:
+
+| Model | Parameters | Context | Aliases |
+|-------|-----------|---------|---------|
+| `gpt-oss-20` | 20B | 8,192 tokens | `gpt20`, `20` |
+| `gpt-oss-120` | 120B | 32,768 tokens | `gpt120`, `120` |
+
+## TypeScript Support
+
+Full TypeScript support with complete type definitions:
+
+```typescript
+import type { 
+  GenerateOptions,
+  EmbeddingOptions,
+  ModelInfo,
+  StreamChunk
+} from 'tekimax-sdk';
+```
+
+## Error Handling
+
+All methods throw typed errors for better error handling:
+
+```typescript
+try {
+  const response = await client.models.generate({
+    model: 'gpt-oss-20',
+    prompt: 'Hello'
+  });
+} catch (error) {
+  if (error.code === 'MODEL_NOT_FOUND') {
+    console.error('Model not available');
+  } else if (error.code === 'CONNECTION_ERROR') {
+    console.error('Cannot connect to Ollama');
+  }
+}
+```
+
+## Configuration
+
+### Client Options
+
+```typescript
+interface OllamaClientOptions {
+  baseUrl: string;    // Ollama server URL
+  apiKey?: string;    // Optional API key
+}
+```
+
+### Generation Options
+
+```typescript
+interface GenerateOptions {
+  model: string;           // Model name or alias
+  prompt: string;          // Input text
+  system?: string;         // System prompt
+  temperature?: number;    // 0.0-2.0
+  top_p?: number;         // 0.0-1.0
+  top_k?: number;         // 1-100
+  max_tokens?: number;    // Maximum output length
+  stream?: boolean;       // Stream response
+  stop?: string[];        // Stop sequences
+}
+```
+
+### Embedding Options
+
+```typescript
+interface EmbeddingOptions {
+  model: string;              // Model name or alias
+  input: string | string[];   // Text(s) to embed
+  options?: Record<string, any>;
+}
+```
+
+## API Methods Overview
+
+### Model Operations
+
+- `client.models.list()` - List available models
+- `client.models.generate()` - Generate text
+- `client.models.show()` - Get model details
+- `client.models.pull()` - Download model
+- `client.models.delete()` - Remove model
+
+### Embedding Operations
+
+- `client.embeddings.create()` - Create embeddings
+- `client.embeddings.calculateCosineSimilarity()` - Compare vectors
+
+### Tool Operations
+
+- `client.tools.use()` - Execute tool functions
+- `client.tools.list()` - List available tools
+
+## Streaming Responses
+
+Handle streaming responses for real-time output:
+
+```typescript
+import { StreamParser } from 'tekimax-sdk';
+
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Tell me a story',
+  stream: true
+});
+
+for await (const chunk of StreamParser.parse(response)) {
+  process.stdout.write(chunk.response);
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Model Aliases" icon="tag">
+    Use convenient aliases like `gpt20` instead of full names
+  </Accordion>
+  <Accordion title="Handle Errors Gracefully" icon="shield">
+    Always wrap API calls in try-catch blocks
+  </Accordion>
+  <Accordion title="Optimize Context Usage" icon="compress">
+    Stay within context limits for best performance
+  </Accordion>
+  <Accordion title="Cache Embeddings" icon="database">
+    Store embeddings to avoid recomputation
+  </Accordion>
+</AccordionGroup>
+
+## Rate Limiting
+
+The SDK handles rate limiting automatically:
+
+```typescript
+// Automatic retry with exponential backoff
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Hello',
+  // SDK will retry up to 3 times if rate limited
+});
+```
+
+## Environment Variables
+
+Configure the SDK with environment variables:
+
+```bash
+# .env
+OLLAMA_HOST=http://localhost:11434
+DEFAULT_MODEL=gpt-oss-20
+DEFAULT_TEMPERATURE=0.7
+```
+
+```typescript
+const client = new OllamaClient({
+  baseUrl: process.env.OLLAMA_HOST
+});
+```
+
+## Advanced Usage
+
+### Custom Headers
+
+Add custom headers to requests:
+
+```typescript
+const client = new OllamaClient({
+  baseUrl: 'http://localhost:11434',
+  headers: {
+    'X-Custom-Header': 'value'
+  }
+});
+```
+
+### Request Timeout
+
+Set custom timeout for requests:
+
+```typescript
+const response = await client.models.generate({
+  model: 'gpt-oss-20',
+  prompt: 'Hello',
+  timeout: 30000  // 30 seconds
+});
+```
+
+## Migration Guide
+
+### From v1.x to v2.x
+
+```typescript
+// Old (v1.x)
+import { OllamaKit } from '@tekimax/ollama-sdk';
+const ollama = new OllamaKit();
+
+// New (v2.x)
+import { OllamaClient } from 'tekimax-sdk';
+const client = new OllamaClient();
+```
+
+## Support
+
+<CardGroup cols={2}>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/TEKIMAX/tekimax-sdk/issues">
+    Report bugs and request features
+  </Card>
+  <Card title="Documentation" icon="book" href="/api-reference/client">
+    Detailed API documentation
+  </Card>
+</CardGroup>
+
+<Note>
+  For interactive learning about these APIs, try `tekimax-sdk learn` in your terminal!
+</Note>

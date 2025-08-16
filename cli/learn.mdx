@@ -1,0 +1,258 @@
+---
+title: 'learn'
+description: 'Launch the interactive AI Academy learning platform'
+icon: 'graduation-cap'
+---
+
+# tekimax-sdk learn
+
+Launch the interactive AI Academy to learn about AI, LLMs, and machine learning concepts.
+
+## Usage
+
+```bash
+tekimax-sdk learn
+```
+
+## Description
+
+The `learn` command opens an interactive terminal-based learning platform with:
+- 5 comprehensive chapters
+- Interactive navigation
+- Quizzes with immediate feedback
+- Searchable content
+- Quick reference guides
+
+## Features
+
+### Interactive Menu System
+
+Navigate through chapters and lessons using:
+- **Arrow Keys**: Move up/down through options
+- **Enter**: Select an item
+- **B**: Go back
+- **S**: Search for topics
+- **Q**: Access quick reference
+- **X**: Exit
+
+### Chapter Structure
+
+<Tabs>
+  <Tab title="Chapter List">
+    1. **AI Fundamentals** - LLMs, Tokens, Transformers
+    2. **Model Parameters** - Temperature, Context, Sampling
+    3. **Embeddings & Vectors** - Text to vectors, similarity
+    4. **Fine-Tuning & Training** - Customizing models
+    5. **Prompt Engineering** - Advanced techniques
+  </Tab>
+  <Tab title="Lesson Format">
+    Each lesson includes:
+    - Detailed explanations
+    - Real-world examples
+    - Code snippets
+    - Interactive quiz
+    - Key takeaways
+  </Tab>
+</Tabs>
+
+## Interactive Elements
+
+### Quizzes
+
+Test your knowledge with multiple-choice questions:
+
+```
+Question 1/3: What does LLM stand for?
+  1. Large Learning Machine
+  2. Large Language Model ✓
+  3. Linear Language Model
+  
+Your answer: 2
+✅ Correct!
+Explanation: LLM stands for Large Language Model...
+```
+
+### Search Function
+
+Find topics quickly across all content:
+
+```
+🔍 Enter search term: temperature
+
+Found 3 results:
+1. Chapter 2: Temperature Control
+2. Chapter 5: Temperature in Prompts
+3. Quick Reference: Parameter Guide
+```
+
+### Quick Reference
+
+Access common information instantly:
+
+```
+📊 QUICK REFERENCE
+
+Model Comparison:
+• GPT-OSS 20: 20B params, 8K context
+• GPT-OSS 120: 120B params, 32K context
+
+Token Conversions:
+• 1 token ≈ 4 characters
+• 1 token ≈ 0.75 words
+• 1,000 tokens ≈ 750 words
+
+Parameter Ranges:
+• Temperature: 0.0-2.0
+• Top-P: 0.0-1.0
+• Top-K: 1-100
+```
+
+## Terminal UI
+
+The learn command features a beautiful terminal interface:
+
+<Card title="UI Elements" icon="palette">
+  - **Gradient Headers**: Colorful title displays
+  - **Colored Menus**: Easy-to-read options
+  - **Syntax Highlighting**: Code examples with colors
+  - **Progress Indicators**: Track lesson completion
+  - **Formatted Text**: Bold, italic, and colored text
+</Card>
+
+## Learning Path
+
+### For Beginners
+
+<Steps>
+  <Step title="Start AI Academy">
+    ```bash
+    tekimax-sdk learn
+    ```
+  </Step>
+  <Step title="Select Chapter 1">
+    Begin with AI Fundamentals
+  </Step>
+  <Step title="Read Each Lesson">
+    Take time to understand concepts
+  </Step>
+  <Step title="Take Quizzes">
+    Test your knowledge
+  </Step>
+  <Step title="Practice with SDK">
+    Apply what you learned
+  </Step>
+</Steps>
+
+### For Experienced Users
+
+Jump directly to advanced topics:
+1. Use search to find specific concepts
+2. Skip to Chapter 5 for prompt engineering
+3. Use quick reference for parameter lookup
+
+## Example Session
+
+```bash
+$ tekimax-sdk learn
+
+████████╗███████╗██╗  ██╗██╗███╗   ███╗ █████╗ ██╗  ██╗
+   AI ACADEMY
+════════════════════════════════════════════════════════════
+      🎓 Learn AI & LLM Concepts Interactively 🎓
+════════════════════════════════════════════════════════════
+
+📚 CHAPTERS:
+
+  1. 🎓 Chapter 1: AI Fundamentals
+     Understanding the basics of artificial intelligence
+
+  2. ⚙️ Chapter 2: Model Parameters
+     Temperature, context windows, and sampling
+
+  3. 🔢 Chapter 3: Embeddings & Vectors
+     Text to vectors and semantic similarity
+
+  4. 🎯 Chapter 4: Fine-Tuning & Training
+     Customizing models for specific tasks
+
+  5. ✍️ Chapter 5: Prompt Engineering
+     Advanced prompting techniques
+
+════════════════════════════════════════════════════════════
+  S. 🔍 Search for a topic
+  Q. 📊 Quick Reference
+  X. 🚪 Exit
+════════════════════════════════════════════════════════════
+
+Select option: _
+```
+
+## Benefits
+
+<AccordionGroup>
+  <Accordion title="Self-Paced Learning" icon="clock">
+    Learn at your own speed, pause and resume anytime
+  </Accordion>
+  <Accordion title="Interactive Feedback" icon="comments">
+    Immediate quiz results with explanations
+  </Accordion>
+  <Accordion title="Practical Examples" icon="code">
+    Real code you can use immediately
+  </Accordion>
+  <Accordion title="No Internet Required" icon="wifi-slash">
+    All content is built into the SDK
+  </Accordion>
+</AccordionGroup>
+
+## Tips
+
+<Note>
+  **Pro Tips:**
+  - Complete chapters in order for best understanding
+  - Take notes while learning
+  - Practice each concept with actual SDK commands
+  - Revisit complex topics multiple times
+</Note>
+
+## Related Commands
+
+After learning, practice with:
+
+<CardGroup cols={3}>
+  <Card title="generate" icon="pen" href="/cli/generate">
+    Generate text with models
+  </Card>
+  <Card title="embed" icon="vector-square" href="/cli/embed">
+    Create embeddings
+  </Card>
+  <Card title="setup" icon="wrench" href="/cli/setup">
+    Check your setup
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<Accordion title="Terminal colors not showing">
+  Some terminals may not support colors. Try:
+  - Using a modern terminal (iTerm2, Windows Terminal)
+  - Setting `FORCE_COLOR=1` environment variable
+  - Using a different shell (zsh, bash)
+</Accordion>
+
+<Accordion title="Navigation keys not working">
+  If arrow keys don't work:
+  - Use number keys to select options
+  - Press Enter after typing the number
+  - Try a different terminal emulator
+</Accordion>
+
+## Exit and Resume
+
+Your progress is not saved between sessions, but you can:
+- Exit anytime with 'X' or Ctrl+C
+- Resume by running `tekimax-sdk learn` again
+- Jump to specific chapters using the menu
+
+<Tip>
+  Start your AI education journey now with `tekimax-sdk learn`!
+</Tip>

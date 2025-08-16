@@ -1,0 +1,281 @@
+---
+title: 'generate'
+description: 'Generate text using GPT-OSS models'
+icon: 'pen'
+---
+
+# tekimax-sdk generate
+
+Generate text using GPT-OSS 20 or 120 models with customizable parameters.
+
+## Usage
+
+```bash
+tekimax-sdk generate [options]
+```
+
+## Quick Examples
+
+```bash
+# Basic generation with default model (GPT-OSS 20)
+tekimax-sdk generate -p "Explain quantum computing"
+
+# Use GPT-OSS 120 for complex tasks
+tekimax-sdk generate -m gpt-oss-120 -p "Write a detailed essay"
+
+# Use model alias
+tekimax-sdk generate -m gpt20 -p "Hello, world!"
+
+# Control creativity with temperature
+tekimax-sdk generate -p "Write a poem" -t 0.9
+
+# Stream the response
+tekimax-sdk generate -p "Tell me a story" --stream
+```
+
+## Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-m, --model` | Model to use | `gpt-oss-20` |
+| `-p, --prompt` | Input text prompt | Required |
+| `-s, --system` | System prompt | None |
+| `-t, --temperature` | Creativity (0.0-2.0) | `0.7` |
+| `--top-p` | Nucleus sampling | `0.9` |
+| `--top-k` | Top-K sampling | `40` |
+| `--max-tokens` | Maximum output length | Model default |
+| `--stream` | Stream response | `false` |
+| `--format` | Output format (json, text) | `text` |
+
+## Model Selection
+
+<Tabs>
+  <Tab title="Model Names">
+    ```bash
+    # Full model names
+    -m gpt-oss-20
+    -m gpt-oss-120
+    ```
+  </Tab>
+  <Tab title="Aliases">
+    ```bash
+    # Convenient aliases
+    -m gpt20
+    -m gpt120
+    -m 20
+    -m 120
+    ```
+  </Tab>
+</Tabs>
+
+## Parameter Examples
+
+### Temperature Control
+
+```bash
+# Factual, deterministic (low temperature)
+tekimax-sdk generate -m gpt20 -p "What is 2+2?" -t 0.1
+
+# Balanced (default)
+tekimax-sdk generate -m gpt20 -p "Explain AI" -t 0.7
+
+# Creative, varied (high temperature)
+tekimax-sdk generate -m gpt20 -p "Write a story" -t 0.9
+```
+
+### System Prompts
+
+```bash
+# Set behavior with system prompt
+tekimax-sdk generate \
+  -p "Hello" \
+  -s "You are a helpful assistant who speaks like Shakespeare"
+
+# Technical assistant
+tekimax-sdk generate \
+  -p "Explain recursion" \
+  -s "You are a computer science professor"
+```
+
+### Output Control
+
+```bash
+# Limit output length
+tekimax-sdk generate -p "Write an essay" --max-tokens 200
+
+# JSON format output
+tekimax-sdk generate -p "List 3 facts" --format json
+
+# Stream for long responses
+tekimax-sdk generate -p "Explain the universe" --stream
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Code Generation" icon="code">
+    ```bash
+    tekimax-sdk generate \
+      -p "Write a Python fibonacci function" \
+      -t 0.2
+    ```
+  </Card>
+  <Card title="Creative Writing" icon="feather">
+    ```bash
+    tekimax-sdk generate \
+      -p "Write a sci-fi story opening" \
+      -t 0.9 --top-p 0.95
+    ```
+  </Card>
+  <Card title="Q&A" icon="question">
+    ```bash
+    tekimax-sdk generate \
+      -p "What is machine learning?" \
+      -t 0.3 --top-k 10
+    ```
+  </Card>
+  <Card title="Translation" icon="language">
+    ```bash
+    tekimax-sdk generate \
+      -p "Translate to Spanish: Hello world" \
+      -t 0.1
+    ```
+  </Card>
+</CardGroup>
+
+## Advanced Usage
+
+### Combining Parameters
+
+```bash
+# Optimal for code
+tekimax-sdk generate \
+  -m gpt-oss-20 \
+  -p "Implement quicksort in Python" \
+  -t 0.2 \
+  --top-p 0.5 \
+  --top-k 20
+
+# Optimal for creative writing
+tekimax-sdk generate \
+  -m gpt-oss-120 \
+  -p "Write a mystery story" \
+  -t 0.85 \
+  --top-p 0.95 \
+  --top-k 60 \
+  --max-tokens 1000
+```
+
+### Using Stop Sequences
+
+```bash
+# Stop at specific strings
+tekimax-sdk generate \
+  -p "List three items:" \
+  --stop "4." --stop "END"
+```
+
+### Piping and Redirection
+
+```bash
+# Save to file
+tekimax-sdk generate -p "Write a README" > README.md
+
+# Pipe to other commands
+tekimax-sdk generate -p "List files" | grep ".js"
+
+# Use input from file
+cat prompt.txt | tekimax-sdk generate
+```
+
+## Output Format
+
+### Default Text Output
+
+```
+$ tekimax-sdk generate -p "What is AI?"
+
+Artificial Intelligence (AI) refers to the simulation of human intelligence 
+in machines that are programmed to think and learn like humans...
+```
+
+### Streaming Output
+
+```
+$ tekimax-sdk generate -p "Tell a story" --stream
+
+Once upon a time... [text appears as it's generated]
+```
+
+### JSON Output
+
+```json
+{
+  "model": "gpt-oss-20",
+  "prompt": "List 3 colors",
+  "response": "1. Blue\n2. Red\n3. Green",
+  "tokens": 12,
+  "duration": 1.234
+}
+```
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="Model Not Found" icon="x">
+    ```
+    Error: Model 'gpt-oss-20' not found
+    
+    Solution: Run 'tekimax-sdk setup' to check models
+    ```
+  </Accordion>
+  <Accordion title="Ollama Not Running" icon="server">
+    ```
+    Error: Cannot connect to Ollama
+    
+    Solution: Start Ollama with 'ollama serve'
+    ```
+  </Accordion>
+  <Accordion title="Context Exceeded" icon="expand">
+    ```
+    Error: Prompt exceeds context window
+    
+    Solution: Use shorter prompt or GPT-OSS 120
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Tips and Tricks
+
+<Note>
+  **Pro Tips:**
+  - Use GPT-OSS 20 for speed, GPT-OSS 120 for quality
+  - Lower temperature for facts, higher for creativity
+  - Add system prompts for consistent behavior
+  - Stream long responses for better UX
+</Note>
+
+## Performance
+
+| Model | Speed | Quality | Best For |
+|-------|-------|---------|----------|
+| GPT-OSS 20 | Fast (~50 tok/s) | Good | General tasks, quick responses |
+| GPT-OSS 120 | Slower (~20 tok/s) | Excellent | Complex reasoning, long content |
+
+## Related Commands
+
+<CardGroup cols={3}>
+  <Card title="embed" icon="vector-square" href="/cli/embed">
+    Create embeddings
+  </Card>
+  <Card title="setup" icon="wrench" href="/cli/setup">
+    Check configuration
+  </Card>
+  <Card title="learn" icon="graduation-cap" href="/cli/learn">
+    Learn about parameters
+  </Card>
+</CardGroup>
+
+<Tip>
+  Experiment with different temperature values to see how they affect output!
+</Tip>

@@ -1,0 +1,280 @@
+---
+title: 'Chapter 1: AI Fundamentals'
+description: 'Understanding the basics of artificial intelligence and language models'
+icon: 'brain'
+---
+
+# AI Fundamentals
+
+Welcome to the foundation of your AI education. This chapter covers the essential concepts you need to understand before working with large language models.
+
+## 📚 Lessons in This Chapter
+
+<CardGroup cols={3}>
+  <Card title="What is an LLM?" icon="robot">
+    Large Language Models explained
+  </Card>
+  <Card title="Understanding Tokens" icon="cube">
+    The building blocks of AI
+  </Card>
+  <Card title="Transformer Architecture" icon="network-wired">
+    The technology behind modern AI
+  </Card>
+</CardGroup>
+
+## Lesson 1: What is a Large Language Model?
+
+### Definition
+
+A **Large Language Model (LLM)** is a type of artificial intelligence model that understands and generates human-like text. These models are:
+
+- **Large**: Containing billions of parameters (weights)
+- **Language**: Specialized in understanding and generating text
+- **Model**: Mathematical systems that learn patterns from data
+
+### Key Characteristics
+
+<Tabs>
+  <Tab title="Size">
+    **Parameters**: The "knowledge" of the model
+    - GPT-OSS 20: 20 billion parameters
+    - GPT-OSS 120: 120 billion parameters
+    - Each parameter is a learned weight
+  </Tab>
+  <Tab title="Training">
+    **Data Sources**:
+    - Books and articles
+    - Websites and forums
+    - Code repositories
+    - Academic papers
+  </Tab>
+  <Tab title="Capabilities">
+    **What LLMs Can Do**:
+    - Generate coherent text
+    - Answer questions
+    - Translate languages
+    - Write code
+    - Summarize documents
+  </Tab>
+</Tabs>
+
+### How LLMs Work
+
+<Steps>
+  <Step title="Input Processing">
+    Text is broken down into tokens (smallest units)
+  </Step>
+  <Step title="Pattern Recognition">
+    Model identifies patterns and relationships in tokens
+  </Step>
+  <Step title="Prediction">
+    Generates probable next tokens based on patterns
+  </Step>
+  <Step title="Output Generation">
+    Combines tokens into coherent text response
+  </Step>
+</Steps>
+
+### GPT-OSS Models
+
+This SDK is optimized for two GPT-OSS models:
+
+| Model | Parameters | Context | Best For |
+|-------|-----------|---------|----------|
+| **GPT-OSS 20** | 20B | 8,192 tokens | Fast responses, general tasks |
+| **GPT-OSS 120** | 120B | 32,768 tokens | Complex reasoning, long documents |
+
+## Lesson 2: Understanding Tokens
+
+### What is a Token?
+
+A **token** is the smallest unit of text that a language model processes. Think of tokens as the "atoms" of language processing.
+
+### Types of Tokens
+
+<AccordionGroup>
+  <Accordion title="Word Tokens" icon="font">
+    Complete words: "hello", "world", "computer"
+  </Accordion>
+  <Accordion title="Subword Tokens" icon="text-slash">
+    Parts of words: "un", "believ", "able" for "unbelievable"
+  </Accordion>
+  <Accordion title="Character Tokens" icon="letter">
+    Individual characters: "a", "b", "c"
+  </Accordion>
+  <Accordion title="Special Tokens" icon="asterisk">
+    Punctuation and control: ".", ",", "[START]", "[END]"
+  </Accordion>
+</AccordionGroup>
+
+### Token Examples
+
+```python
+# Text to tokens examples
+"Hello, world!" → ["Hello", ",", " world", "!"]  # 4 tokens
+"unbelievable" → ["un", "believ", "able"]        # 3 tokens
+"GPT-OSS" → ["GPT", "-", "OSS"]                  # 3 tokens
+"AI is amazing" → ["AI", " is", " amazing"]      # 3 tokens
+```
+
+### Why Tokens Matter
+
+1. **Context Window Limits**
+   - GPT-OSS 20: Maximum 8,192 tokens
+   - GPT-OSS 120: Maximum 32,768 tokens
+
+2. **Cost Calculation**
+   - API pricing based on token count
+   - More tokens = higher cost
+
+3. **Performance Impact**
+   - Processing time increases with tokens
+   - Memory usage scales with token count
+
+### Token Estimation Guide
+
+<Card title="Quick Reference" icon="calculator">
+  - **1 token** ≈ 4 characters
+  - **1 token** ≈ 0.75 words
+  - **100 tokens** ≈ 75 words
+  - **1,000 tokens** ≈ 750 words ≈ 1.5 pages
+  - **8,192 tokens** ≈ 6,000 words ≈ 12 pages
+</Card>
+
+## Lesson 3: Transformer Architecture
+
+### What are Transformers?
+
+Transformers are the neural network architecture that powers modern LLMs. Introduced in 2017, they revolutionized AI with their ability to process sequences efficiently.
+
+### Key Components
+
+<CardGroup cols={2}>
+  <Card title="Self-Attention" icon="eye">
+    Allows the model to focus on relevant parts of input
+  </Card>
+  <Card title="Multi-Head Attention" icon="layer-group">
+    Multiple attention mechanisms working in parallel
+  </Card>
+  <Card title="Feed-Forward Networks" icon="arrow-right">
+    Process information after attention
+  </Card>
+  <Card title="Positional Encoding" icon="sort-numeric">
+    Understands word order and position
+  </Card>
+</CardGroup>
+
+### How Attention Works
+
+The attention mechanism allows the model to:
+- Focus on relevant context
+- Understand relationships between words
+- Process long-range dependencies
+
+```python
+# Simplified attention concept
+"The cat sat on the mat"
+# When processing "sat", the model attends to:
+# - "cat" (who sat)
+# - "mat" (where they sat)
+# - "the" (articles for context)
+```
+
+### Model Architecture Details
+
+| Component | GPT-OSS 20 | GPT-OSS 120 |
+|-----------|------------|-------------|
+| **Layers** | 40 | 80 |
+| **Attention Heads** | 32 | 96 |
+| **Hidden Size** | 5,120 | 10,240 |
+| **Vocabulary** | 50,000 tokens | 50,000 tokens |
+
+### Why Transformers are Revolutionary
+
+<AccordionGroup>
+  <Accordion title="Parallel Processing" icon="bolt">
+    Unlike RNNs, transformers process all tokens simultaneously, making them much faster
+  </Accordion>
+  <Accordion title="Long-Range Dependencies" icon="link">
+    Can connect and understand relationships between distant parts of text
+  </Accordion>
+  <Accordion title="Scalability" icon="expand">
+    Performance improves predictably with size - more parameters = better results
+  </Accordion>
+  <Accordion title="Transfer Learning" icon="share">
+    Pre-train once on general data, then fine-tune for specific tasks
+  </Accordion>
+</AccordionGroup>
+
+## Practice Examples
+
+### Example 1: Token Counting
+
+```typescript
+import { OllamaClient } from 'tekimax-sdk';
+
+const text = "Artificial intelligence is transforming the world";
+// Approximate tokens: 6-7 tokens
+// "Artificial" (1), " intelligence" (1), " is" (1), 
+// " transform" (1), "ing" (1), " the" (1), " world" (1)
+```
+
+### Example 2: Context Window Planning
+
+```typescript
+// Planning for GPT-OSS 20 (8,192 token limit)
+const systemPrompt = 500;    // tokens
+const userInput = 1000;      // tokens
+const desiredOutput = 2000;  // tokens
+const totalNeeded = 3500;    // Well within limit!
+
+// Planning for long documents
+const bookChapter = 15000;   // tokens
+// Need GPT-OSS 120 for this!
+```
+
+## Quiz Questions
+
+<Note>
+  In the interactive CLI version, you can take quizzes to test your knowledge. Here are sample questions:
+</Note>
+
+1. **What does LLM stand for?**
+   - Large Language Model ✓
+   - Large Learning Machine
+   - Linear Language Model
+
+2. **How many tokens approximately in 1,000 words?**
+   - 750 tokens
+   - 1,333 tokens ✓
+   - 2,000 tokens
+
+3. **What is the key innovation of transformers?**
+   - Recurrent connections
+   - Self-attention mechanism ✓
+   - Convolutional layers
+
+## Key Takeaways
+
+<Steps>
+  <Step title="LLMs are Pattern Recognizers">
+    They learn patterns from massive text datasets
+  </Step>
+  <Step title="Tokens are Fundamental">
+    Understanding tokens helps optimize prompts and costs
+  </Step>
+  <Step title="Transformers Enable Scale">
+    The architecture allows models to grow and improve
+  </Step>
+  <Step title="Context Windows Matter">
+    Choose the right model based on your needs
+  </Step>
+</Steps>
+
+## Next Chapter
+
+Ready to learn about model parameters? Continue to [Chapter 2: Model Parameters](/academy/chapter-2-parameters) →
+
+<Tip>
+  **Practice Tip**: Use `tekimax-sdk generate` to experiment with different prompts and see tokenization in action!
+</Tip>
