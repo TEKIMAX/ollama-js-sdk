@@ -43,10 +43,6 @@
       "url": "academy/overview"
     },
     {
-      "name": "API Reference", 
-      "url": "api-reference/overview"
-    },
-    {
       "name": "CLI",
       "url": "cli/learn"
     }
@@ -99,12 +95,6 @@
         "cli/learn",
         "cli/setup",
         "cli/generate"
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/overview"
       ]
     }
   ],
