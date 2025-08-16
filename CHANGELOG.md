@@ -1,6 +1,54 @@
 # Changelog
 
-All notable changes to @tekimax/ollama-sdk will be documented in this file.
+All notable changes to Tekimax SDK will be documented in this file.
+
+## [2.0.0] - 2024-01-15
+
+### 🎉 Major Release - AI Academy Edition
+
+#### 🎓 AI Academy - Interactive Learning Platform
+- **5 Comprehensive Chapters** covering AI fundamentals to advanced topics
+- **Interactive Quizzes** with immediate feedback and explanations
+- **Searchable Content** across all lessons and topics
+- **Quick Reference Guides** for parameters and conversions
+- **Real-world Examples** and practical code snippets
+
+#### 📚 Complete Course Curriculum
+- **Chapter 1: AI Fundamentals** - LLMs, Tokens, Transformer Architecture
+- **Chapter 2: Model Parameters** - Temperature, Context Windows, Sampling
+- **Chapter 3: Embeddings & Vectors** - Text to vectors, similarity
+- **Chapter 4: Fine-Tuning & Training** - Customizing models
+- **Chapter 5: Prompt Engineering** - Advanced techniques
+
+#### 🚀 GPT-OSS Model Optimization
+- **GPT-OSS 20** - 20B parameters, 8K context window
+- **GPT-OSS 120** - 120B parameters, 32K context window
+- **Model Aliases** - Convenient shortcuts (gpt20, gpt120, 20, 120)
+- **Smart Defaults** - Optimized settings for each model
+
+#### 🛠️ New CLI Commands
+- `tekimax-sdk learn` - Launch AI Academy interactive learning
+- `tekimax-sdk setup` - Check Ollama connection and model availability
+- Enhanced help with model information and examples
+- Improved error messages with helpful guidance
+
+#### 🔄 Complete Rebranding
+- Renamed from @tekimax/ollama-sdk to tekimax-sdk
+- Updated all documentation and references
+- New focus on education and GPT-OSS models
+- Professional branding with Tekimax identity
+
+### Changed
+- Complete codebase refactor for educational features
+- All examples updated to use GPT-OSS models
+- Documentation rewritten with learning focus
+- CLI redesigned with better UX and colors
+
+### Improved
+- TypeScript types for all components
+- Batch embedding support
+- Better streaming response handling
+- Enhanced error recovery and user guidance
 
 ## [1.5.0] - 2023-05-13
 

@@ -1,30 +1,43 @@
-# API Reference
+# API Reference - GPT-OSS Edition
 
-This document provides a reference for the @tekimax/ollama-sdk API.
+This document provides a reference for the Tekimax SDK API, optimized for GPT-OSS 20 and GPT-OSS 120 models.
 
 ## Core Classes
 
-### OllamaKit
+### OllamaClient
 
 Main entry point for the SDK.
 
 ```typescript
-import { OllamaKit } from '@tekimax/ollama-sdk';
+import { OllamaClient } from 'tekimax-sdk';
 
-const ollama = new OllamaKit({
-  host?: string, // default: 'http://localhost:11434'
+const client = new OllamaClient({
+  baseUrl?: string, // default: 'http://localhost:11434'
+  apiKey?: string,  // optional API key
 });
+```
+
+### Supported Models
+
+```typescript
+// Get list of supported GPT-OSS models
+const models = client.models.getSupportedModels();
+// Returns: [{name: 'gpt-oss-20', ...}, {name: 'gpt-oss-120', ...}]
+
+// Get default model
+const defaultModel = client.models.getDefaultModel();
+// Returns: 'gpt-oss-20'
 ```
 
 ## Text Generation
 
 ### generate
 
-Generate text from a prompt.
+Generate text from a prompt using GPT-OSS models.
 
 ```typescript
 async function generate({
-  model: string,
+  model: 'gpt-oss-20' | 'gpt-oss-120' | '20' | '120',
   prompt: string,
   system?: string,
   template?: string,

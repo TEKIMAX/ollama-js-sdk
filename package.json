@@ -1,7 +1,7 @@
 {
   "name": "tekimax-sdk",
-  "version": "1.5.2",
-  "description": "TypeScript SDK for Large Language Models - Currently supporting Ollama API with plans for Claude, Gemini and other models",
+  "version": "2.0.0",
+  "description": "TypeScript SDK optimized for GPT-OSS 20 and GPT-OSS 120 models - High-performance training and inference",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {

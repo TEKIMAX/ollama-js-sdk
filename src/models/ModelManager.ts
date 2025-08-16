@@ -1,5 +1,6 @@
 // ModelManager.ts - Handles operations related to Ollama models
 import { OllamaClient } from '../client/OllamaClient';
+import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_ALIASES } from '../config/models';
 
 export interface ModelInfo {
   name: string;
@@ -32,6 +33,22 @@ export class ModelManager {
     this.client = client;
   }
   
+  private resolveModelName(model: string): string {
+    const resolved = MODEL_ALIASES[model as keyof typeof MODEL_ALIASES] || model;
+    if (!SUPPORTED_MODELS[resolved as keyof typeof SUPPORTED_MODELS]) {
+      console.warn(`Model ${model} not in supported list. Only GPT-OSS 20 and 120 are officially supported.`);
+    }
+    return resolved;
+  }
+  
+  getSupportedModels() {
+    return Object.values(SUPPORTED_MODELS);
+  }
+  
+  getDefaultModel() {
+    return DEFAULT_MODEL;
+  }
+  
   async list() {
     const response = await this.client.makeRequest('/api/tags', {
       method: 'GET',
@@ -51,9 +68,14 @@ export class ModelManager {
   }
   
   async generate(options: GenerateOptions) {
+    const resolvedOptions = {
+      ...options,
+      model: this.resolveModelName(options.model || DEFAULT_MODEL)
+    };
+    
     const response = await this.client.makeRequest('/api/generate', {
       method: 'POST',
-      body: JSON.stringify(options),
+      body: JSON.stringify(resolvedOptions),
     });
     
     if (options.stream)

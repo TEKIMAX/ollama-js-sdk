@@ -391,12 +391,12 @@ export class OpenAICompatManager {
     for (const [index, text] of inputs.entries()) {
       const response = await this.client.embeddings.create({
         model,
-        prompt: text
+        input: text
       });
       
       embeddings.push({
         object: 'embedding' as const,
-        embedding: response.embedding,
+        embedding: response.embeddings[0],
         index
       });
     }

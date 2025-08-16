@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// CLI interface for Tekimax Ollama SDK
+// CLI interface for Tekimax SDK - GPT-OSS Edition
 
 import { OllamaClient } from './client/OllamaClient';
+import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_ALIASES } from './config/models';
 import { StreamParser, StreamChunk } from './util/StreamParser';
 import chalk from 'chalk';
 import * as figlet from 'figlet';
@@ -11,6 +12,8 @@ import { createInterface } from 'node:readline';
 import { ToolCall } from './tools/ToolsManager';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { InteractiveMenu } from './education/InteractiveMenu';
+import { ModelSetup } from './setup/ModelSetup';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -23,13 +26,15 @@ function displayBanner() {
     verticalLayout: 'default',
   });
   
-  const subtitle = '   Ollama SDK CLI';
+  const subtitle = '   GPT-OSS SDK CLI';
   
   // Create a retro gradient with amber/blue/cyan colors
   const retroGradient = gradientString('#ff8c00', '#1e90ff', '#00ced1', '#4169e1');
   
   console.log(retroGradient(tekimaxArt));
-  console.log(chalk.cyan('   Ollama SDK CLI'));
+  console.log(chalk.cyan('   GPT-OSS SDK CLI - Optimized for GPT-OSS 20 & 120'));
+  console.log(chalk.cyan('   ========================================'));
+  console.log(chalk.yellow(`   Default Model: ${DEFAULT_MODEL}`));
   console.log(chalk.cyan('   ========================================\n'));
 }
 
@@ -70,6 +75,14 @@ async function main() {
         break;
       case 'tutorial':
         await runInteractiveTutorial(client);
+        break;
+      case 'learn':
+        const menu = new InteractiveMenu();
+        await menu.start();
+        break;
+      case 'setup':
+        const setup = new ModelSetup(client);
+        await setup.setupGuide();
         break;
       case 'help':
       case undefined:
@@ -261,14 +274,14 @@ async function tutorialCreateEmbeddings(client: OllamaClient, rl: any) {
   try {
     const embedding = await client.embeddings.create({
       model: modelName,
-      prompt: text
+      input: text
     });
     
     spinner.succeed(chalk.green('Embeddings created successfully!'));
     
-    console.log(chalk.bold.cyan(`\n📊 Embedding (${embedding.embedding.length} dimensions):`));
+    console.log(chalk.bold.cyan(`\n📊 Embedding (${embedding.embeddings[0].length} dimensions):`));
     console.log(chalk.gray('First 5 values:'), 
-      chalk.yellow(`[${embedding.embedding.slice(0, 5).map((v: number) => v.toFixed(6)).join(', ')}...]`));
+      chalk.yellow(`[${embedding.embeddings[0].slice(0, 5).map((v: number) => v.toFixed(6)).join(', ')}...]`));
   } catch (error) {
     spinner.fail(chalk.red('Failed to create embedding'));
     console.error(chalk.yellow('⚠️  Error details:'), error);
@@ -610,10 +623,21 @@ async function removeModel(client: OllamaClient) {
 }
 
 async function generate(client: OllamaClient) {
+  // Check if Ollama is available first
+  const setup = new ModelSetup(client);
+  const isConnected = await setup.checkOllamaConnection();
+  
+  if (!isConnected) {
+    console.log(chalk.yellow('\n⚠️  Ollama is not running!'));
+    console.log(chalk.white('Run: tekimax-sdk setup') + chalk.gray(' for installation guide'));
+    console.log(chalk.white('Or: tekimax-sdk learn') + chalk.gray(' to start AI Academy\n'));
+    return;
+  }
+  
   const modelIndex = args.findIndex(arg => arg === '--model' || arg === '-m');
   const model = modelIndex >= 0 && args.length > modelIndex + 1
     ? args[modelIndex + 1]
-    : 'llama2';
+    : 'gpt-oss-20';  // Default to GPT-OSS 20
   
   const promptIndex = args.findIndex(arg => arg === '--prompt' || arg === '-p');
   const prompt = promptIndex >= 0 && args.length > promptIndex + 1
@@ -700,14 +724,14 @@ async function createEmbedding(client: OllamaClient) {
   try {
     const embedding = await client.embeddings.create({
       model,
-      prompt
+      input: prompt
     });
     
     spinner.succeed(chalk.green('Embeddings created successfully!'));
     
-    console.log(chalk.bold.cyan(`\n📊 Embedding (${embedding.embedding.length} dimensions):`));
+    console.log(chalk.bold.cyan(`\n📊 Embedding (${embedding.embeddings[0].length} dimensions):`));
     console.log(chalk.gray('First 5 values:'), 
-      chalk.yellow(`[${embedding.embedding.slice(0, 5).map((v: number) => v.toFixed(6)).join(', ')}...]`));
+      chalk.yellow(`[${embedding.embeddings[0].slice(0, 5).map((v: number) => v.toFixed(6)).join(', ')}...]`));
   } catch (error) {
     spinner.fail(chalk.red('Failed to create embedding'));
     console.error(chalk.yellow('⚠️  Error details:'), error);
@@ -715,19 +739,25 @@ async function createEmbedding(client: OllamaClient) {
 }
 
 function showHelp() {
-  console.log(chalk.cyan('📚 Tekimax Ollama SDK CLI Help'));
-  console.log(`\n${chalk.cyan('Usage:')} ollama-sdk <command> [options]\n`);
+  console.log(chalk.cyan('📚 Tekimax SDK CLI - GPT-OSS Edition'));
+  console.log(`\n${chalk.cyan('Usage:')} tekimax-sdk <command> [options]\n`);
   
   console.log(chalk.bold('Available Commands:'));
   
+  console.log(`${chalk.green('learn')}\t\t\t${chalk.bold('🎓 AI Academy - Interactive Learning')}`);
+  console.log(`${chalk.gray('  ')}\t\t\t${chalk.gray('Learn AI concepts, LLMs, embeddings, and more')}\n`);
+  
+  console.log(`${chalk.green('setup')}\t\t\t${chalk.bold('🚀 Setup Guide & Model Check')}`);
+  console.log(`${chalk.gray('  ')}\t\t\t${chalk.gray('Check Ollama connection and model availability')}\n`);
+  
   console.log(`${chalk.green('list')}\t\t\tList available models`);
-  console.log(`${chalk.green('generate')}\t\tGenerate text with a model`);
+  console.log(`${chalk.green('generate')}\t\tGenerate text with GPT-OSS models`);
   console.log(`${chalk.green('embed')}\t\t\tCreate embeddings from text`);
-  console.log(`${chalk.green('pull')}\t\t\tPull a model from Ollama registry`);
+  console.log(`${chalk.green('pull')}\t\t\tPull a model from registry`);
   console.log(`${chalk.green('show')}\t\t\tShow details about a model`);
   console.log(`${chalk.green('remove')}\t\tRemove a model`);
   console.log(`${chalk.green('tools')}\t\t\tUse tools with a model`);
-  console.log(`${chalk.green('tutorial')}\t\tRun an interactive tutorial`);
+  console.log(`${chalk.green('tutorial')}\t\tRun hands-on tutorial`);
   console.log(`${chalk.green('help')}\t\t\tShow this help message`);
   
   console.log('\nOptions:');
@@ -741,13 +771,16 @@ function showHelp() {
   console.log(`${chalk.yellow('--tools-file')}\tSpecify JSON file containing tools definition`);
   
   console.log(`\n${chalk.bold('Examples:')}`);
-  console.log(`  ${chalk.yellow('ollama-sdk generate -m llama2 -p "Tell me a story"')}`);
-  console.log(`  ${chalk.yellow('ollama-sdk embed -m nomic-embed-text -p "Semantic text analysis"')}`);
-  console.log(`  ${chalk.yellow('ollama-sdk tools -m llama3 -p "Search for news about AI" --tools-file search-tools.json')}`);
+  console.log(`  ${chalk.yellow('tekimax-sdk learn')} ${chalk.gray('# Start AI Academy interactive learning')}`);
+  console.log(`  ${chalk.yellow('tekimax-sdk generate -m gpt-oss-20 -p "Explain quantum computing"')}`);
+  console.log(`  ${chalk.yellow('tekimax-sdk generate -m gpt120 -p "Write a poem"')} ${chalk.gray('# Using alias')}`);
+  console.log(`  ${chalk.yellow('tekimax-sdk embed -m gpt-oss-20 -p "Semantic text analysis"')}`);
+  console.log(`  ${chalk.yellow('tekimax-sdk tools -m gpt-oss-120 -p "Search for AI news" --tools-file tools.json')}`);
   
-  console.log(`\n${chalk.bold('Tool Usage:')}`);
-  console.log(`  Create a JSON file with tool definitions and use with the tools command:`);
-  console.log(`  ${chalk.yellow('ollama-sdk tools -m llama3 -p "What is the weather in New York?" --tools-file weather-tools.json')}`);
+  console.log(`\n${chalk.bold('Supported Models:')}`);
+  console.log(`  ${chalk.green('gpt-oss-20')}\t20B parameters, 8K context window`);
+  console.log(`  ${chalk.green('gpt-oss-120')}\t120B parameters, 32K context window`);
+  console.log(`  ${chalk.gray('Aliases: gpt20, gpt120, 20, 120')}`);
   
   console.log('\nFor more information, visit: https://github.com/TEKIMAX/ollama-js-sdk');
 }
